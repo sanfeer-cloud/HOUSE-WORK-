@@ -1,0 +1,834 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>House Work Expense Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{--blue:#14385c;--bava:#1f5f8f;--hashir:#b0502f;--other:#2f7f6f;--bg:#edf0f2;--card:#fff;--ink:#1c2a36;--mute:#5d6d7a;--line:#d5dde3;--warn:#a66a0a;--warnbg:#fff6e2;--ok:#237a4b}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font:14px/1.5 "IBM Plex Sans",system-ui,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--ink);font-variant-numeric:tabular-nums}
+h1,h2,h3,.big{font-family:"IBM Plex Sans Condensed","IBM Plex Sans",system-ui,sans-serif}
+h2{font-size:19px}h3{font-size:15px}
+.wrap{max-width:1280px;margin:0 auto;padding:0 20px}
+header{background:var(--blue);color:#fff;padding:20px 0 24px;background-image:linear-gradient(rgba(255,255,255,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.06) 1px,transparent 1px);background-size:24px 24px}
+.top{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:flex-start}
+h1{font-size:27px}
+.sync{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.pill{display:inline-flex;align-items:center;gap:7px;border:1px solid rgba(255,255,255,.35);border-radius:20px;padding:5px 12px;font-size:13px}
+.dot{width:9px;height:9px;border-radius:50%;background:#f2b442}.live .dot{background:#4fd68b}
+button,select,input,.btn{font:inherit;border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:6px;padding:7px 11px}
+button,.btn{cursor:pointer}button:hover,.btn:hover{border-color:var(--bava)}
+:focus-visible{outline:3px solid #f2b442;outline-offset:1px}
+.hero{display:flex;gap:36px;flex-wrap:wrap;align-items:flex-end;margin-top:20px}
+.big{font-size:48px;line-height:1.05;font-weight:700}
+.hero small{display:block;opacity:.8}
+.hero .proj b{font-size:23px;display:block}
+.hero .proj{border-left:4px solid;padding-left:11px}
+.strip{display:flex;height:30px;border-radius:5px;overflow:hidden;margin-top:18px;background:rgba(255,255,255,.12)}
+.strip span{height:100%;cursor:pointer;border-right:2px solid var(--blue)}
+.legend{display:flex;flex-wrap:wrap;gap:4px 16px;margin-top:9px;font-size:12.5px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px}
+#banner{background:var(--warnbg);border-bottom:1px solid #ecd397;color:#69440a;padding:10px 0;display:none}
+.bar{position:sticky;top:0;z-index:5;background:#fff;border-bottom:1px solid var(--line)}
+.filters{display:flex;gap:8px;flex-wrap:wrap;padding-top:10px;padding-bottom:6px}
+.filters input{flex:1;min-width:160px}
+nav{display:flex;gap:2px;overflow-x:auto}
+nav button{border:0;border-bottom:3px solid transparent;border-radius:0;padding:9px 14px;white-space:nowrap;color:var(--mute);font-weight:500}
+nav button[aria-selected=true]{border-bottom-color:var(--hashir);color:var(--ink)}
+main{padding-top:20px;padding-bottom:40px}
+section{display:none}section.on{display:block}
+.card{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:18px;margin-bottom:16px;min-width:0}
+.card>p.note{color:var(--mute);margin:2px 0 12px;max-width:80ch}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,440px),1fr));gap:16px}.grid>.card{margin:0}.grid{margin-bottom:16px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:8px;overflow:hidden;margin-bottom:16px}
+.kpis div{background:#fff;padding:14px 16px}.kpis b{display:block;font:700 23px "IBM Plex Sans Condensed",system-ui,sans-serif}.kpis span{color:var(--mute);font-size:13px}
+.insights{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:10px;margin-top:10px}
+.ins{border-left:4px solid var(--bava);background:#f4f7f9;padding:10px 13px}.ins.w{border-color:var(--warn);background:var(--warnbg)}.ins b{display:block}
+.scroll{overflow:auto;max-height:620px}
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{position:sticky;top:0;background:#f4f7f9;cursor:pointer;white-space:nowrap;font-weight:600}
+td.n,th.n{text-align:right;white-space:nowrap}
+tbody tr:hover{background:#f7fafc}
+a.link{color:var(--bava);cursor:pointer;text-decoration:underline}
+.hrow{display:grid;grid-template-columns:minmax(100px,190px) 1fr 92px;gap:10px;align-items:center;margin:7px 0;cursor:pointer}
+.hrow .lab{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.track{display:flex;height:17px;background:#eef2f4;border-radius:3px;overflow:hidden}
+.hrow .v{text-align:right;font-weight:600}
+.key{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--mute);margin-bottom:8px}
+.key i{display:inline-block;width:11px;height:11px;border-radius:2px;margin-right:5px}
+svg{display:block;font:11px "IBM Plex Sans",system-ui,sans-serif}
+.cmp{display:grid;grid-template-columns:1fr 1fr 1fr;border-top:1px solid var(--line);margin-top:10px}
+.cmp>div{padding:8px 6px;border-bottom:1px solid var(--line);overflow-wrap:anywhere}.cmp .h{font-weight:600}.cmp .m{color:var(--mute)}
+.pick{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.empty{color:var(--mute);padding:20px 0}
+.tag{display:inline-block;border-radius:4px;padding:1px 7px;font-size:12px;color:#fff;white-space:nowrap}
+footer{color:var(--mute);font-size:12.5px;padding-bottom:30px}
+@media(max-width:600px){.big{font-size:38px}h1{font-size:22px}.hrow{grid-template-columns:100px 1fr 76px}.bar{position:static}}
+@media print{.bar,.sync,#banner{display:none!important}section{display:block!important}.scroll{max-height:none;overflow:visible}body{background:#fff}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <div class="top">
+    <div><h1>House work expense dashboard</h1><div id="range" style="opacity:.8"></div></div>
+    <div class="sync">
+      <span class="pill" id="status" role="status"><span class="dot"></span><span id="statusText">Connecting…</span></span>
+      <button id="refresh">Refresh now</button>
+      <label class="btn">Load CSV file<input type="file" id="file" accept=".csv,text/csv" hidden></label>
+      <button onclick="window.print()">Print / PDF</button>
+    </div>
+  </div>
+  <div class="hero" id="hero"></div>
+  <div class="strip" id="strip"></div><div class="legend" id="stripKey"></div>
+</div></header>
+<div id="banner"><div class="wrap" id="bannerText"></div></div>
+<div class="bar"><div class="wrap">
+  <div class="filters">
+    <select id="fProject" aria-label="Project"></select>
+    <select id="fYear" aria-label="Year"></select>
+    <select id="fWork" aria-label="Work"></select>
+    <select id="fCon" aria-label="Contractor"></select>
+    <input id="fText" type="search" placeholder="Search remarks, payer, name…" aria-label="Search">
+    <button id="clear">Clear filters</button>
+  </div>
+  <nav id="tabs" role="tablist"></nav>
+</div></div>
+<main class="wrap">
+<section id="overview">
+  <div class="kpis" id="kpis"></div>
+  <div class="card"><h2>Insights</h2><p class="note">Calculated automatically from the payments shown. They update when the sheet or filters change.</p><div class="insights" id="insights"></div></div>
+  <div class="card"><h2>Monthly spending</h2><p class="note">Bars show each month. The dark line shows the running total. Hover or tap for amounts.</p><div class="key" id="mKey"></div><div style="overflow-x:auto" id="monthly"></div></div>
+  <div class="grid">
+    <div class="card"><h2>Year by year</h2><div class="scroll" id="years"></div></div>
+    <div class="card"><h2>House comparison by work</h2><p class="note">Amount paid for each work in each house.</p><div class="scroll" id="houses"></div></div>
+    <div class="card"><h2>How payments were made</h2><p class="note">Read from the remarks and transaction notes.</p><div id="modes"></div></div>
+    <div class="card"><h2>Who paid or routed the money</h2><p class="note">Based on names written in the notes. "Not stated" means no name was found.</p><div id="payers"></div></div>
+  </div>
+</section>
+<section id="works">
+  <div class="card"><h2>Cost by work</h2><p class="note">Select a bar to see its payments.</p><div class="key" id="wKey"></div><div id="workBars"></div></div>
+  <div class="card"><h2>Work details</h2><p class="note">Select a column heading to sort.</p><div class="scroll" id="workTable"></div></div>
+  <div class="grid">
+    <div class="card"><h2>Compare two works</h2><div class="pick"><select id="wA" aria-label="First work"></select> with <select id="wB" aria-label="Second work"></select></div><div id="wCmp"></div></div>
+    <div class="card"><h2>Material and labour</h2><p class="note">Only payments whose notes say material or labour can be classified.</p><div id="matlab"></div></div>
+  </div>
+</section>
+<section id="contractors">
+  <div class="card"><h2>Amount paid to each contractor or supplier</h2><p class="note">Select a bar to see its payments.</p><div class="key" id="cKey"></div><div id="conBars"></div></div>
+  <div class="card"><h2>Contractor details</h2><div class="scroll" id="conTable"></div></div>
+  <div class="card"><h2>Compare two contractors</h2><p class="note">Different trades have different costs, so compare scope as well as totals.</p><div class="pick"><select id="cA" aria-label="First contractor"></select> with <select id="cB" aria-label="Second contractor"></select></div><div id="cCmp"></div></div>
+  <div class="card"><h2>Contractor and work matrix</h2><div class="scroll" id="matrix"></div></div>
+</section>
+<section id="time">
+  <div class="card"><h2>Time taken by each work</h2><p class="note">The sheet has no start or finish dates, so each line runs from the first payment to the last payment. Actual site work may start earlier or end later. Each circle is a payment, and a larger circle means a larger amount.</p><div class="key" id="gKey"></div><div style="overflow-x:auto" id="gantt"></div></div>
+  <div class="card"><h2>Duration table</h2><div class="scroll" id="timeTable"></div></div>
+</section>
+<section id="ledger">
+  <div class="card"><div class="top"><div><h2>All payments</h2><div id="ledgerSum" style="color:var(--mute)"></div></div><button id="export">Download these as CSV</button></div><div class="scroll" id="ledgerTable" style="margin-top:12px"></div></div>
+</section>
+<section id="check">
+  <div class="card"><h2>Entries to verify</h2><p class="note">These may be correct. Please check each against the bill or bank record. Filters do not apply here.</p><div class="scroll" id="issues"></div></div>
+  <div class="card"><h2>Names grouped together</h2><p class="note">Spelling variants and related labels from the sheet are combined as follows. The sheet itself is not changed.</p><div class="scroll" id="mapping"></div></div>
+</section>
+</main>
+<footer class="wrap" id="foot"></footer>
+
+<script type="text/csv" id="snapshot">S/N,Date,Amt Paid,Work,Contractor,Remarks,Transaction details,PROJECT NAME
+1,10/14/2022,"150,000",Foundation,Shibili,,,BAVA HOUSE
+2,10/22/2022,"100,000",Foundation,Shibili,,,BAVA HOUSE
+3,10/23/2022,"130,000",Architect,SHABEEB,Initial payment,,BAVA HOUSE
+4,10/30/2022,"97,500",Architect,SHABEEB,,,BAVA HOUSE
+5,11/5/2022,"50,000",Foundation,Shibili,,,BAVA HOUSE
+6,11/16/2022,"50,000",Land Clearing,CHERRI,,,BAVA HOUSE
+7,11/19/2022,"8,100",Electrical Connection,MEDAN SALAM,New electric connection,,BAVA HOUSE
+8,11/20/2022,"9,200",Land Clearing,SUBEESH,Land cleared for rock cutting,,BAVA HOUSE
+9,11/24/2022,"10,000",Land Clearing,CHERRI,,,BAVA HOUSE
+10,11/25/2022,"17,500",Land Clearing,CHERRI,,,BAVA HOUSE
+11,11/27/2022,"25,000",Land Clearing,CHERRI,,,BAVA HOUSE
+12,11/1/2022,"20,000",Land Clearing,CHERRI,,,BAVA HOUSE
+13,11/2/2022,"27,000",Land Clearing,CHERRI,,,BAVA HOUSE
+14,11/3/2022,"125,500",Land Clearing,CHERRI,,,BAVA HOUSE
+15,1/1/2023,"50,000",Foundation,Shibili,25k+25k Transfferd by Hashir,,BAVA HOUSE
+16,1/6/2023,"50,000",Foundation,Shibili,,,BAVA HOUSE
+17,2/8/2023,"100,000",Foundation Belt and Floor Concrete,Shibili,Transfered by Hashir,,BAVA HOUSE
+18,2/13/2023,"50,000",Foundation Belt and Floor Concrete,Shibili,Transfered by Hashir,,BAVA HOUSE
+19,3/3/2023,"10,285",Electrical Connection,MEDAN SALAM,Motor and pipe,withdrew from ATM,BAVA HOUSE
+20,3/3/2023,900,Electrical Connection,MEDAN SALAM,Temp electrical,withdrew from ATM,BAVA HOUSE
+21,3/3/2023,"2,500",Electrical Connection,MEDAN SALAM,Motor electrical connection,withdrew from ATM,BAVA HOUSE
+22,3/4/2023,"61,000",Foundation,Shibili,,Withdrew from ATM,BAVA HOUSE
+23,3/28/2023,"400,000",STRUCTURE,Shibili,,Cheque given,BAVA HOUSE
+24,5/18/2023,"300,000",STRUCTURE,Shibili,,Cheque given,BAVA HOUSE
+25,6/26/2023,"600,000",STRUCTURE,Shibili,main slab on 26-06-23,Cheque,BAVA HOUSE
+26,7/20/2023,"100,000",STRUCTURE,Shibili,,cheque,BAVA HOUSE
+27,8/14/2023,"200,000",STRUCTURE,Shibili,First floor Dintal,Aapa- pullyapade,BAVA HOUSE
+28,9/7/2023,"300,000",STRUCTURE,Shibili,First floor concrete,Aapa - Pullayapade,BAVA HOUSE
+29,9/12/2023,"100,000",STRUCTURE,Shibili,First floor concrete,Aapa - Pullayapade,BAVA HOUSE
+30,11/16/2023,"150,000",Electrical - Matierial Purchase,HILITE,Electrical - Matierial Purchase,Cash given ( nirappil kaka ),BAVA HOUSE
+31,11/30/2023,"45,000",Electrical Work,MEDAN SALAM,Electrical work,,BAVA HOUSE
+32,11/30/2023,"72,000",Plastering Material,Mirshu,"മീറ്റീരിയൽ ₹72000, ലേബർ 22000",,BAVA HOUSE
+33,11/30/2023,"220,000",Plastering,Aalam,,,BAVA HOUSE
+34,12/7/2023,"100,000",STRUCTURE,Shibili,"1 LAKH for shibili, 50k for wood",,BAVA HOUSE
+35,12/7/2023,"50,000",Wood,Shibili wood,"1 LAKH for shibili, 50k for wood",,BAVA HOUSE
+36,12/13/2023,"50,000",Electrical - Matierial Purchase,HILITE,Electrical - Matierial Purchase,Mahroof direct paid,BAVA HOUSE
+37,12/27/2023,"100,000",Wood,Shibili wood,1 LAKH or Wood,,BAVA HOUSE
+38,1/1/2024,"50,000",Electrical Work,MEDAN SALAM,Electrical work,Rinu handed over,BAVA HOUSE
+39,1/8/2024,"100,000",Other expenses,Shibili,for municipality permission etc,federal bank transfer,BAVA HOUSE
+40,3/25/2024,"50,000",Other expenses,Shibili,"Door, Plastering,Municipality fee, Paint work",federal bank transfer,BAVA HOUSE
+41,4/6/2024,"2,500",LANDSCAPING,SUBEESH,plot/house courtyard nirathal,Sanfi paid,BAVA HOUSE
+42,4/12/2024,"18,950",LANDSCAPING,SUBEESH,plot/house courtyard nirathal,Sanfi paid,BAVA HOUSE
+43,6/3/2024,"50,000",Tress wrok,Muneer Zubair,Paid to Home land for Material purchase,Bava transffered,BAVA HOUSE
+44,6/4/2024,"12,000",Tress wrok,Muneer Zubair,Paid to Muneer Account,Transffered from Umma Gpay,BAVA HOUSE
+45,6/5/2024,"12,000",Tress wrok,Muneer Zubair,Paid to Home land for Material purchase,Transffered from Umma Gpay,BAVA HOUSE
+46,6/6/2024,"96,000",Tress wrok,Muneer Zubair,Paid to Muneer Account,Transffered from Umma Gpay,BAVA HOUSE
+47,6/17/2024,"10,000",Tress wrok,Muneer Zubair,Paid to Muneer Account,Transffered from Umma Gpay,BAVA HOUSE
+48,7/5/2024,"20,000",Tress wrok,Muneer Zubair,Paid to Muneer Account,Transffered from Umma Gpay,BAVA HOUSE
+49,8/11/2024,"100,000",Architect,SHABEEB,Paid to Shabeeb Account,Bava transffered,BAVA HOUSE
+50,8/11/2024,"37,110",Tress wrok,Muneer Zubair,Paid to Faris for material purchase,Bava transffered,BAVA HOUSE
+51,8/20/2024,"18,190",Tress wrok,Muneer Zubair,Paid to Muneer,cash given,BAVA HOUSE
+52,9/9/2024,"15,000",Tress wrok,Muneer Zubair,cash- labor for frame work,cash given,BAVA HOUSE
+53,10-sept-24,"40,683",Tress wrok,Muneer Zubair,Paid to Faris for material purchase,Bava transffered,BAVA HOUSE
+54,9/12/2024,"17,200",paint,Rafi,epoxy pramer for Tress,cash given,BAVA HOUSE
+55,9/23/2024,"70,000",gypsum ceiling,Sanju,Paid as advance for materila,Bava transffered,BAVA HOUSE
+56,10/12/2024,"90,000",gypsum ceiling,Sanju,Paid as advance for materila,Bava transffered,BAVA HOUSE
+57,10/19/2024,"100,000",plumping material,HILITE,plumping material,Bava transffered,BAVA HOUSE
+58,11/2/2024,"20,000",water proofing,Bakkah leak clinic,Paid as advance,Cash given,BAVA HOUSE
+59,11/7/2024,"39,000",plumping,MEDAN SALAM,Paid to Salam,Cash given- plumpin labor,BAVA HOUSE
+60,11/7/2024,"12,480",Boundary Wall,C/O Subeesh,Paid to Sajir,Sanfi transffered from gpay,BAVA HOUSE
+61,11/11/2024,"100,000",Boundary Wall,Shibily BW,paid to Shibily,Bava transferred to Shibily account,BAVA HOUSE
+62,11/15/2024,"100,000",Boundary Wall,Black diomend metals,paid to Black diomend metals,Bava transferred to black diomend metals,BAVA HOUSE
+63,11/17/2024,"21,500",Boundary Wall,Black diomend metals,paid to Black diomend metals,Bava transferred to black diomend metals,BAVA HOUSE
+64,12/1/2024,"20,000",gypsum ceiling,Sanju,Paid as advance for materila,Bava transffered,BAVA HOUSE
+65,12/3/2024,"23,840",water proofing,Bakkah leak clinic,balance amount,Bava transffered to me and i gpay to them,BAVA HOUSE
+66,12/11/2024,"3,150",Plastering,Aalam,"Reppair plastering- plumping , ac cutting",cash given by hand,BAVA HOUSE
+67,12/12/2024,"15,000",Putty,Rafi,Labor,gpay done to his account from sanfi account,BAVA HOUSE
+68,12/14/2024,"41,810",Putty Materail,ABC Paints,Material,Bava transffered to me and i gpay to them,BAVA HOUSE
+69,12/16/2024,"30,000",gypsum ceiling,Sanju,Paid as Labor,Bava transffered to me and i gpay to them,BAVA HOUSE
+70,12/18/2024,"70,000",Boundary Wall,Shibily BW,paid to Shibily,Bava transferred to Shibily account,BAVA HOUSE
+71,12/19/2024,"30,000",Putty,Rafi,Labor,gpay done to his account from sanfi account,BAVA HOUSE
+72,12/20/2024,"100,000",Tiles,Home Stone,Matirial advance,Fund transffered by bava,BAVA HOUSE
+73,12/20/2024,"8,400",LANDSCAPING,SUBEESH,Muttam nirathal,Bava transffered to me and i gpay to them,BAVA HOUSE
+74,12/26/2024,"40,000",Putty,Rafi,Labor,gpay done to his account from sanfi account,BAVA HOUSE
+75,12/26/2024,"43,250",CCTV,Mujeeb,Matrial+ Labor,gpay done to his account from sanfi account,BAVA HOUSE
+76,12/30/2024,"19,580",Putty materail,ABC Paints,Material,gpay done to his account from sanfi account,BAVA HOUSE
+77,12/30/2024,"54,000",Boundary Wall,Black diomend metals,paid to Black diomend metals,Bava transferred to black diomend metals,BAVA HOUSE
+78,1/3/2025,"100,000",Tiles,Home Stone,Material advance,Fund transffered by bava,BAVA HOUSE
+79,1/13/2025,"35,334",Tiles,Home Stone,Materail Advance,Fund transffered by bava,BAVA HOUSE
+80,1/13/2025,"2,000",LANDSCAPING,SUBEESH,Muttam nirathal,gpay done to his account from sanfi account,BAVA HOUSE
+81,1/17/2025,"75,000",Boundary Wall,Shibily BW,paid to Shibily,Fund transffered by bava,BAVA HOUSE
+82,1/22/2025,"18,800",LANDSCAPING,SUBEESH,Muttam nirathal,Cash Given- Recieved from kaka nirappil,BAVA HOUSE
+83,1/23/2025,"7,500",LANDSCAPING,SUBEESH,Muttam nirathal,Tipper charge,BAVA HOUSE
+84,1/31/2025,"45,000",Boundary Wall,Black diomend metals,paid to Black diomend metals,Cash Given- Recieved from kaka nirappil,BAVA HOUSE
+85,12/20/2021,"30,000",Architect,Yuuga,Yuuga - Initial Advance Payment - After Agreement Signing,,HASHIR HOUSE
+86,10/28/2022,"48,000",Architect,Yuuga,Remaning amount (10%+10%) - Yuuga - Second Stage Payment - After Concept Design Finalizing,,HASHIR HOUSE
+87,11/13/2022,"5,000",Site Clearing,Subeesh,Leveling - by Subheesh - JCB,,HASHIR HOUSE
+88,11/15/2022,"5,000",Site Clearing,Subeesh,Leveling - by Subheesh - JCB,,HASHIR HOUSE
+89,11/17/2022,"5,000",Site Clearing,Subeesh,Leveling - by Subheesh - JCB,,HASHIR HOUSE
+90,11/19/2022,"8,100",Medan Salam,Medan Salam,Electricity connection - Temp - for work,,HASHIR HOUSE
+91,11/20/2022,"60,900",Site Clearing,Subeesh,Leveling - by Subheesh - JCB,,HASHIR HOUSE
+92,11/20/2022,"11,000",Site Clearing,Subeesh,Tipper - c/o Subheesh,,HASHIR HOUSE
+93,11/20/2022,"14,300",Site Clearing,Subeesh,Tipper - c/o Subheesh,,HASHIR HOUSE
+94,11/20/2022,"8,500",Site Clearing,Subeesh,Stone breaker - c/o Subheesh,,HASHIR HOUSE
+95,12/7/2022,"128,500",Foundation,Shibili,Initial payment - today Set Out,,HASHIR HOUSE
+96,12/20/2022,"39,000",Architect,Yuuga,Third Stage Payment – After Project Set out at Site,,HASHIR HOUSE
+97,1/2/2023,"100,000",Foundation,Shibili,"50k+50k paid to shibili, SBI SB bank transfer direct",,HASHIR HOUSE
+98,1/30/2023,"150,000",Foundation,Shibili,,,HASHIR HOUSE
+99,2/20/2023,"100,000",Foundation,Shibili,2k by google pay + 98k SB bank transfer,,HASHIR HOUSE
+100,3/1/2023,"50,000",Foundation,Shibili,gpay,,HASHIR HOUSE
+101,3/3/2023,"10,285",Electrical Work,Medan Salam,gpay to sanfi,,HASHIR HOUSE
+102,3/3/2023,900,Electrical Work,Medan Salam,gpay to sanfi,,HASHIR HOUSE
+103,3/3/2023,"2,500",Electrical Work,Medan Salam,gpay to sanfi,,HASHIR HOUSE
+104,3/3/2023,"47,500",Foundation,Shibili,gpay,,HASHIR HOUSE
+105,4/27/2023,"32,465",Water Proof,Bakkah Leak Clinic,Water proof - Bakkah Leak Clinic,,HASHIR HOUSE
+106,4/27/2023,"150,000",Masonry,Shibili,Direct bank transfer,,HASHIR HOUSE
+107,5/10/2023,"100,000",Masonry,Shibili,Direct bank transfer,,HASHIR HOUSE
+108,6/6/2023,"100,000",Masonry,Shibili,Direct bank transfer (gpay),,HASHIR HOUSE
+109,6/6/2023,"50,000",Masonry,Shibili,Direct bank transfer (gpay),,HASHIR HOUSE
+110,6/28/2023,"230,000",Masonry,Shibili,gpay 30+20+80+50+50,,HASHIR HOUSE
+111,7/31/2023,"50,000",Masonry,Shibili,gpay 50k for concrete,,HASHIR HOUSE
+112,8/1/2023,"100,000",Masonry,Shibili,gpay 50k+50k for concrete,,HASHIR HOUSE
+113,8/3/2023,"100,000",Masonry,Shibili,gpay 50k+50k for concrete,,HASHIR HOUSE
+114,8/9/2023,"50,000",Masonry,Shibili,gpay 50k,,HASHIR HOUSE
+115,8/23/2023,"47,000",Masonry,Shibili,cash paid to him direct by Umma,,HASHIR HOUSE
+116,9/14/2023,"90,000",Masonry,Shibili,Direct transfer NRI,,HASHIR HOUSE
+117,10/4/2023,"100,000",Masonry,Shibili,Direct transfer NRI,,HASHIR HOUSE
+118,10/8/2023,"100,000",Masonry,Shibili,Direct transfer NRI,,HASHIR HOUSE
+119,11/6/2023,"150,000",Masonry,Shibili,Direct transfer NRI,,HASHIR HOUSE
+120,12/7/2023,"150,000",Masonry,Shibili,Direct transfer NRI (99k+51k),,HASHIR HOUSE
+121,1/11/2024,"31,500",Other Expenses,Shibili,for Municipality permit Rs 31155,,HASHIR HOUSE
+122,4/3/2024,"50,000",Other Expenses,Shibili,Direct transfer NRI,,HASHIR HOUSE
+123,4/6/2024,"2,500",LANDSCAPING,Subeesh,plot/house courtyard nirathal - sanfi paid,,HASHIR HOUSE
+124,5/18/2024,"50,000",Electrical - Purchase,HILITE,Direct transfer NRI,,HASHIR HOUSE
+125,5/19/2024,"50,000",Electrical - Purchase,HILITE,Direct transfer NRI,,HASHIR HOUSE
+126,5/21/2024,"50,000",Electrical - Purchase,HILITE,Direct transfer NRI,,HASHIR HOUSE
+127,6/17/2024,"50,000",Electrical Work,Medan Salam,gpay 50k,,HASHIR HOUSE
+128,7/20/2024,"40,000",Electrical - Purchase,HILITE,gpay 40k,,HASHIR HOUSE
+129,9/28/2024,"30,000",Electrical - Purchase,HILITE,sanfi paid,,HASHIR HOUSE
+130,9/28/2024,"220,000",Grill Tress - Purchase,Bilas Build Ware,sanfi paid - the grill( windows) and pipes( for tress work)- Material charge,,HASHIR HOUSE
+131,10/5/2024,"10,000",Tress work,Muneer Zubair,"10k labor for grill, sanfi gave",,HASHIR HOUSE
+132,10/5/2024,"3,000",Tress work,Muneer Zubair,"3k for patta thulakal + auto charge, sanfi gave",,HASHIR HOUSE
+133,10/10/2024,"15,000",Tress work,Muneer Zubair,"15k labor for grill, sanfi gave",,HASHIR HOUSE
+134,10/24/2024,"11,500",Tress work,Muneer Zubair,"labor for grill, sanfi gave",,HASHIR HOUSE
+135,10/29/2024,"24,000",Grill Tress - Purchase,Bilas Build Ware,direct transfer - the grill( windows) and pipes( for tress work)- Material charge,,HASHIR HOUSE
+136,10/31/2024,"30,000",Tress work,Muneer Zubair,"labor for tress, sanfi gave",,HASHIR HOUSE
+137,11/3/2024,"37,087",Tress Work,Bilas Build Ware,Tress work GP Pipe - online transfer,,HASHIR HOUSE
+138,11/7/2024,"10,000",Tress work,Muneer Zubair,"labor for tress roof, sanfi gave",,HASHIR HOUSE
+139,11/10/2024,"50,000",Electrical Work,Medan Salam,gpay 50k,,HASHIR HOUSE
+140,11/24/2024,"6,500",LANDSCAPING,Subeesh,backside courtyard nirathal,,HASHIR HOUSE
+141,12/5/2024,"25,000",Door Frames,Frame Steel,Gpay - for door frames steel.,,HASHIR HOUSE
+142,12/14/2024,"11,590",Masonry,Supreme Traders,For bricks and Cement,,HASHIR HOUSE
+143,12/17/2024,"19,300",Wooden Door,Kamal,Wooden Door,,HASHIR HOUSE
+144,12/17/2024,"1,869",Plastering,Kammukka shop,purchased bucket and some items for plastering,,HASHIR HOUSE
+145,12/18/2024,"10,000",Tress work,Muneer Zubair,Balance for Roof work,,HASHIR HOUSE
+146,12/19/2024,"22,000",Masonry,Aalam,2000 for food expense for previous labor work,,HASHIR HOUSE
+147,12/25/2024,"50,000",Masonry,Shibili,Final balance for Masonry,,HASHIR HOUSE
+148,12/26/2024,"20,000",Plastering,Aalam,g pay done from umma account,,HASHIR HOUSE
+149,12/31/2024,"35,200",Plastering,P sand- Naseeb kodur,g pay done from umma account,,HASHIR HOUSE
+150,1/2/2025,"39,670",Plastering,Supreme Traders,Cement for plastering - Gpay done from umma account,,HASHIR HOUSE
+151,1/2/2025,"30,000",Plastering,Aalam,g pay done from umma account,,HASHIR HOUSE
+152,1/10/2025,"25,000",Plastering,Aalam,Cash paid from adaka valapp fund,,HASHIR HOUSE
+153,1/10/2025,"2,000",Cleaning,Aalam,,,HASHIR HOUSE
+154,1/17/2025,"20,000",Plastering,Aalam,Cash paid from adaka valapp fund,,HASHIR HOUSE
+155,1/17/2025,"2,000",Cleaning,Aalam,,,HASHIR HOUSE
+156,1/22/2025,"2,390",Plastering,Aalam,"Purchased bricks, sheet etc - paid at kammukka shop",,HASHIR HOUSE
+157,1/23/2025,"25,000",Plastering,Aalam,g pay done from umma account,,HASHIR HOUSE
+158,1/30/2025,"65,250",Boundary Wall,Shibily BW,Cash paid,,HASHIR HOUSE
+159,1/31/2025,"5,000",Plastering,Aalam,g pay done from umma account,,HASHIR HOUSE
+160,2/2/2025,"18,000",Plastering,Aalam,g pay done from umma account,,HASHIR HOUSE
+161,2/5/2025,"2,000",Plastering,Aalam,g pay done from umma account,,HASHIR HOUSE
+162,2/6/2025,"21,300",Masonry,Aalam,Cash paid,,BAVA HOUSE
+163,2/6/2025,"40,000",Flooring,Manu Mash,Direct bank transfer,,BAVA HOUSE
+164,10-02-2025,"7,600",Masonry,Aalam,Cash Paid,,BAVA HOUSE
+165,2/13/2025,"3,085",Masonry,Aalam,food expense . Paid at pravasi hotel,,BAVA HOUSE
+166,2/13/2025,480,Masonry,Aalam,paid at kammukka shop,,BAVA HOUSE
+167,2/14/2025,"2,300",Water Proof,Rafi,G pay done from sanfi account,,BAVA HOUSE
+168,2/15/2025,"27,350",Flooring,Shibili,"for concrete materil - p sand , m sand, Rent stair",,BAVA HOUSE
+169,2/15/2025,"50,000",Boundary Wall,Shibily BW,Direct bank transfer,,BAVA HOUSE
+170,2/17/2025,"27,371",Electrical Work,Medan Salam,Cash paid,,BAVA HOUSE
+171,2/17/2025,"36,700",Electrical Work,Medan Salam,Cash Paid,,BAVA HOUSE
+172,2/18/2025,"25,586",Plastering,Supreme Traders,Cash Paid ( bavas advance),,HASHIR HOUSE
+173,2/18/2025,"30,922",Flooring,Supreme Traders,Cash paid,,BAVA HOUSE
+174,2/19/2025,"7,160",Site Clearing,SUBEESH,g pay done from umma account,,BAVA HOUSE
+175,2/19/2025,"1,800",Site Clearing,SUBEESH,g pay done from umma account,,HASHIR HOUSE
+176,2/19/2025,"10,000",Tress work,Muneer Zubair,g pay done from umma account,,HASHIR HOUSE
+177,2/21/2025,"12,953",Tress Work,Bilas Build Ware,g pay done from umma account,,HASHIR HOUSE
+178,2/21/2025,"6,358",Electrical Work,Baith Noor,g pay done from umma account( material cost),,HASHIR HOUSE
+179,2/21/2025,"16,416",Electrical Work,Baith Noor,G pay done from umma account( advance adjusted Ref:172),,BAVA HOUSE
+180,3/3/2025,"90,000",Flooring,Manu Mash,Direct bank transfer,,BAVA HOUSE
+181,3/2/2025,"2,500",Electrical Connection,HILITE,paid to Razak bhai for electrical board shifting,,HASHIR HOUSE
+182,3/6/2025,"27,000",Boundary Wall,Black diomend metals,paid to Black diomend metals,,HASHIR HOUSE
+183,3/7/2025,"11,950",Flooring,Classic Tiles,For Steel Channel purchase. Fund transferred to manu mash,,BAVA HOUSE
+184,3/9/2025,"60,000",Flooring,Manu Mash,Direct Bank Transfer,,BAVA HOUSE
+185,3/9/2025,"13,000",Tress work,Muneer Zubair,Cash paid,,HASHIR HOUSE
+186,3/10/2025,"100,000",Flooring,Home Stone,Direct Bank Transfer,,BAVA HOUSE
+187,3/11/2025,"100,000",Flooring,Home Stone,Direct Bank Transfer,,BAVA HOUSE
+188,3/12/2025,"6,370",CCTV,Mujeeb,Matrial+ Labor,gpay done to his account from Sanish account,BAVA HOUSE
+189,3/13/2025,"100,000",Roof Tile,Lamit,Direct Bank Transfer,,BAVA HOUSE
+190,3/15/2025,"100,000",Stair Case,Sabikh,Direct Bank Transfer,,BAVA HOUSE
+191,3/15/2025,"200,000",Roof Tile,Lamit,Direct Bank Transfer,,BAVA HOUSE
+192,3/18/2025,"100,000",Flooring,AJ Associates,Direct Bank Transfer,Flooring Gum,BAVA HOUSE
+193,3/19/2025,"9,000",Flooring,AJ Associates,Cash given from kuri cash by umma,Flooring Gum,BAVA HOUSE
+194,3/19/2025,"10,000",Tress work,Muneer Zubair,Cash paid,,BAVA HOUSE
+195,3/19/2025,"4,000",Tress work,Muneer Zubair,Cash paid,,HASHIR HOUSE
+196,3/20/2025,"6,000",Glass Work,Homestar,Direct Bank Transfer,,BAVA HOUSE
+197,3/20/2025,"33,151",Tress Work,Bilas Build Ware,Direct Bank Transfer,,BAVA HOUSE
+198,3/23/2025,"10,000",gypsum ceiling,Sanju,Direct Bank Transfer,Balance work in toilets,BAVA HOUSE
+199,3/23/2025,"14,000",Tress work,Muneer Zubair,Cash paid,,BAVA HOUSE
+200,3/24/2025,"3,500",LANDSCAPING,Subeesh,Cash paid,,BAVA HOUSE
+201,3/25/2025,"6,500",Glass Work,Homestar,Direct Bank Transfer,,BAVA HOUSE
+202,3/29/2025,"75,000","CAR PORCH, STEPS, CEPTIC TANK",Shibili,Direct Bank Transfer,,BAVA HOUSE
+203,3/28/2025,"1,500",LANDSCAPING,Subeesh,G pay done by sanfi,,BAVA HOUSE
+204,3/30/2025,"14,000",Tress work,Muneer Zubair,G pay done by sanfi,,BAVA HOUSE
+205,4/3/2025,"29,500",LANDSCAPING,Subeesh,Direct Bank Transfer,,BAVA HOUSE
+206,4/3/2025,"17,000",LANDSCAPING,Subeesh,Cash paid,,HASHIR HOUSE
+207,4/6/2025,"2,600",paint,Rafi,G pay done by sanfi,epoxy pramer for Tress,BAVA HOUSE
+208,4/6/2025,"2,792",Roof Tile,Lamit,G pay done by sanfi,unloading charge,BAVA HOUSE
+209,4/8/2025,"1,400",Paint,ABC Paints,G pay done by sanfi,Epoxy pramer Material,BAVA HOUSE
+210,4/8/2025,576,Roof Tile,Lamit,G pay done by sanfi,Unloading charge,BAVA HOUSE
+211,4/8/2025,"81,600",Roof Tile,Lamit,Direct Bank Transfer,,BAVA HOUSE
+212,4/10/2025,"40,000",Rain Gutter,Lamit,Direct bank transfer,,BAVA HOUSE
+213,4/13/2025,"100,000",Interior work,Prashanth,Direct bank transfer,,BAVA HOUSE
+214,4/16/2025,"250,000",Interior work,Prashanth,Direct bank transfer,,BAVA HOUSE
+215,4/17/2025,"27,000",Boundary Wall,Black diomend metals,paid to Black diomend metals,,BAVA HOUSE
+216,4/17/2025,"13,500",Boundary Wall,Black diomend metals,paid to Black diomend metals,,HASHIR HOUSE
+217,4/19/2025,"32,000",Rain Gutter,Lamit,Sanfi paid ( against credit from bava),,BAVA HOUSE
+218,4/20/2025,"6,500",LANDSCAPING,Subeesh,G pay done by sanfi,,HASHIR HOUSE
+219,4/23/2025,"58,530",Tress work,Bilas Build Ware,G pay done from umma account,,HASHIR HOUSE
+220,4/24/2025,"40,000",Boundary Wall,Shibili,G pay done from umma account,,HASHIR HOUSE
+221,4/23/2025,"6,075",Roof Tile,Lamit,Concrete Nail - paid to labors,,BAVA HOUSE
+222,4/24/2025,"20,000",Roof Tile,Lamit,Labor amount for roof tile workers,,BAVA HOUSE
+223,4/24/2025,"8,150",LANDSCAPING,Subeesh,G pay done by sanfi,,BAVA HOUSE
+224,4/24/2025,"3,650",LANDSCAPING,Subeesh,G pay done by sanfi,,HASHIR HOUSE
+225,4/29/2025,"14,840",LANDSCAPING,Subeesh,G pay done from umma account,,HASHIR HOUSE
+226,5/2/2025,"20,000",Stair Case,Sabikh,G pay done by sanfi,,BAVA HOUSE
+227,5/3/2025,"27,700",LANDSCAPING,Subeesh,G pay done by sanfi,"( ceptic tank, pond etc)",HASHIR HOUSE
+228,5/3/2025,"30,775",Roof Tile,Lamit,Labor amount for roof tile workers,,BAVA HOUSE
+229,5/7/2025,"14,193",Roof Tile,Lamit,Payment for addition sealing tile,,BAVA HOUSE
+230,5/7/2025,"400,000",UPVC,SAMORA,Direct bank transfer,,BAVA HOUSE
+231,5/14/2025,"10,500",LANDSCAPING,Subeesh,G pay done from umma account,Pond work,HASHIR HOUSE
+232,5/14/2025,"18,000",Boundary Wall,Black diomend metals,G pay done by sanfi,(from cash received from anwar),BAVA HOUSE
+233,5/15/2025,"10,000",Tress work,Muneer Zubair,Cash given by sanfi,cash transffered from umma account,HASHIR HOUSE
+234,5/17/2025,"10,000",Paint,Shafeeq,Exterior Putty,G pay done by sanfi,BAVA HOUSE
+235,5/20/2025,"22,500",Boundary Wall,Black diomend metals,paid to Black diomend metals,cash transffered from umma account,HASHIR HOUSE
+236,5/20/2025,"25,000",Tress work,Muneer Zubair,advance paid to sheet shop for sheet and bending,cash transffered from umma account,HASHIR HOUSE
+237,5/20/2025,"37,224",Tress work,Bilas Build Ware,,cash transffered from umma account,HASHIR HOUSE
+238,5/20/2025,"86,050",plumping material,HILITE,Material fro exterior plumping and garder plumping and electrical works including drinage pipe,Direct transfer NRI,BAVA HOUSE
+239,5/22/2025,"8,610",LANDSCAPING,C/O Shibily,"JCB and Tipper Charge for drinage, garden leveling , muttam leveling",G pay done by sanfi,BAVA HOUSE
+240,5/22/2025,"11,930",LANDSCAPING,C/O Shibily,"JCB and Tipper charge for drinage, pond, muttam cleaning",G pay done from umma account,HASHIR HOUSE
+241,5/28/2025,"100,000",Boundary Wall,Shibili,"Labor charge and few materials like cement, kambi for boundary wall, ceptic tank etc",Direct transfer NRI,BAVA HOUSE
+242,5/29/2025,"15,000",Paint,Shafeeq,Exterior Putty,Cash paid,BAVA HOUSE
+243,5/30/2025,"40,000",STRUCTURE,Shibili,paid after completion of car porch,Cash paid,BAVA HOUSE
+244,5/30/2025,"5,000",boundary Wall,Shibili,"Labor charge and few materials like cement, kambi for boundary wall, ceptic tank etc",Cash paid,BAVA HOUSE
+245,6/17/2025,"83,714",Flooring,Home Stone,matierial charge for granite,Direct transfer NRI,BAVA HOUSE
+246,6/19/2025,"1,800",Flooring,Home Stone,Delivery charge for granite delivery,gpaid from sanfi account,BAVA HOUSE
+247,6/23/2025,"70,862",Flooring,Home Stone,"matierial charge for tiles in kitchen, work area, open terrace",Direct transfer NRI,BAVA HOUSE
+248,6/24/2025,"7,000",boundary Wall,Black diomend metals,paid to Black diomend metals,CASH PAID FROM CASH RECIVED FROM KAAKA,BAVA HOUSE
+249,6/24/2025,"7,000",boundary Wall,Black diomend metals,paid to Black diomend metals,CASH PAID FROM CASH RECIVED FROM KAAKA,HASHIR HOUSE
+250,6/24/2025,"50,000",Boundary Wall,Shibili,"Labor charge and few materials like cement, M SAND,kambi for boundary wall",CASH PAID FROM CASH RECIVED FROM KAAKA,BAVA HOUSE
+251,6/25/2025,"300,000",Interior work,Prashanth,Direct bank transfer- MATERIAL BILL FOR INTERIOR WORKS - transferred to homestar,FOR INTERIOR,BAVA HOUSE
+252,6/25/2025,"100,000",Interior work,Prashanth,Direct bank transfer,FOR INTERIOR,BAVA HOUSE
+253,6/29/2025,440,paint,Rafi,paid for painting material,G pay done by sanfi,BAVA HOUSE
+254,6/30/2025,600,paint,Rafi,window grill painting,G pay done by sanfi,BAVA HOUSE
+255,6/30/2025,"3,500",Tress work,Muneer Zubair,boarder work material charge,cash transffered from umma account,HASHIR HOUSE
+256,7/1/2025,"75,000",plumping material,HILITE,Matirial for exterior plumping,Direct transfer NRI,BAVA HOUSE
+257,7/4/2025,"50,000",Boundary Wall,Shibili,boundary wall & Pond work,G pay done from umma account,HASHIR HOUSE
+258,7/5/2025,"3,000",Flooring,Home Stone,delivery charge for granite delivery,G pay done by sanfi,BAVA HOUSE
+259,7/5/2025,"65,000",Flooring,Home Stone,granite ( taken from another shop through home stone),G pay done by sanfi from profit received from anwar,BAVA HOUSE
+260,7/7/2025,"19,578",Flooring,Home Stone,granite ( taken from another shop through home stone),G pay done by sanfi from profit received from anwar(14250)+ sanfi credit return from innova fund,BAVA HOUSE
+261,7/9/2025,"103,000",boundary Wall,Shafeeq,paid hollow bricks amount,cash paid,BAVA HOUSE
+262,7/9/2025,"40,000",Tress work,Muneer Zubair,boarder work material charge + 3 days labor,cash transffered from umma account,HASHIR HOUSE
+263,7/11/2025,"150,000",UPVC,SAMORA,Direct bank transfer,,BAVA HOUSE
+264,7/11/2025,"175,000",Interior work,Prashanth,Direct bank transfer,,BAVA HOUSE
+265,7/17/2025,"40,000",plumping,Medan Salam,,,BAVA HOUSE
+266,7/17/2025,"8,040",paint,Rafi,,G pay done from umma account,HASHIR HOUSE
+267,7/18/2025,"75,000",Boundary Wall,Shibili,Direct bank transfer,,BAVA HOUSE
+268,7/19/2025,"60,000",Interior work,Prashanth,Direct bank transfer,,BAVA HOUSE
+269,7/23/2025,"22,600",plumping material,Classic Tiles,Zink Purchased,,BAVA HOUSE
+270,7/23/2025,"50,000",plumping material,HILITE,,,BAVA HOUSE
+271,7/24/2025,"5,660",plumping material,KPM Sanitsary,Wash basin,,BAVA HOUSE
+272,7/26/2025,"20,000",Stair Case,Sabikh,,,BAVA HOUSE
+273,7/26/2025,"300,000",Interior work,Prashanth,Direct bank transfer,,BAVA HOUSE
+274,7/28/2025,"15,000",Quarts work Labor,Haneefa,transfered by sanfi gpay(hashir account),,BAVA HOUSE
+275,7/28/2025,"11,610",LANDSCAPING- INTERLOCK,Shakthi,leveling - by Shakthi team for interlock work,G pay done from umma account,BAVA HOUSE
+276,7/17/2025,"40,000",Flooring,Manu Mash,Direct Bank Transfer
+277,7/29/2025,"10,000",Flooring,Manu Mash,,G pay done from sanfi account received from anwar,BAVA HOUSE
+278,7/29/2025,"5,750",LANDSCAPING- INTERLOCK,Shakthi,leveling,G pay done from sanfi account received from anwar,BAVA HOUSE
+279,7/30/2025,"50,000",Aluminium Frame,SAMORA,Direct bank transfer,,BAVA HOUSE
+280,8/1/2025,"9,200",LANDSCAPING,Shakthi,leveling,G pay done from sanfi,BAVA HOUSE
+281,8/1/2025,"20,000",Boundary Wall,Shibili,,,HASHIR HOUSE
+282,8/1/2025,"39,000",Quarts work Labor,Haneefa,Direct bank transfer,,BAVA HOUSE
+283,8/2/2025,"50,000",Interior work,Prashanth,Direct bank transfer,,BAVA HOUSE
+284,8/3/2025,"28,000",Tress work,Muneer Zubair,Porch and grill work,,BAVA HOUSE
+285,8/3/2025,"6,900",LANDSCAPING- INTERLOCK,Shakthi,leveling - by Shakthi team for interlock work,G pay done from sanfi,BAVA HOUSE
+286,8/3/2025,"6,300",CLADING WORK,SHARAFUDHEEN,,G pay done from sanfi,BAVA HOUSE
+287,8/4/2025,"250,000",Flooring,Home Stone,"Quarts(249108), cladding stone (44408)",Direct bank transfer,BAVA HOUSE
+288,8/5/2025,"26,680",paint,ABC Paints,gpay done by sanfi,,BAVA HOUSE
+289,8/5/2025,"4,620",paint,ABC Paints,gpay done by sanfi,,HASHIR HOUSE
+290,8/6/2025,"250,000",AC,Keybees,,Direct bank transfer,BAVA HOUSE
+291,8/6/2025,"10,000",CLADING WORK,SHARAFUDHEEN,,G pay done from sanfi,BAVA HOUSE
+292,8/6/2025,"40,000",Boundary Wall,Shibili,Plastering,G pay done from sanfi,BAVA HOUSE
+293,8/7/2025,"50,000",plumping,Medan Salam,,,BAVA HOUSE
+294,8/8/2025,"20,000",Tress work,Muneer Zubair,Porch and grill work,,BAVA HOUSE
+295,8/8/2025,"11,500",LANDSCAPING- INTERLOCK,Shakthi,leveling,,BAVA HOUSE
+296,8/8/2025,"14,600",Tress work,Muneer Zubair,porch boarder sheet,,BAVA HOUSE
+297,8/8/2025,680,CLADING WORK,Home Stone,Cladign stone delivery,,BAVA HOUSE
+298,8/8/2025,950,Flooring,AJ Associates,gum delivery,,BAVA HOUSE
+299,8/8/2025,"20,000",Paint,Shafeeq,Exterior Putty,,BAVA HOUSE
+300,8/8/2025,"2,200",paint,Rafi,Door polish,,BAVA HOUSE
+301,8/9/2025,"100,000",Tress work,Bilas Build Ware,Material for Car Porch,,BAVA HOUSE
+302,8/10/2025,"11,000",CLADING WORK,SHARAFUDHEEN,,,BAVA HOUSE
+303,8/11/2025,"6,476",Sealing work,Unni,bathroom trap door sealing,,BAVA HOUSE
+304,8/11/2025,"50,000",Interior work,Prashanth,Direct bank transfer,,BAVA HOUSE
+305,8/12/2025,"50,000",Electrical fittings,HILITE,Direct bank transfer,,BAVA HOUSE
+306,8/12/2025,"50,000",Car porch Sealing work,Said alavi,Direct bank transfer,,BAVA HOUSE
+307,8/12/2025,"200,000",UPVC,SAMORA,Direct bank transfer,,BAVA HOUSE
+308,8/12/2025,"25,000",LANDSCAPING- INTERLOCK,Black diomend metals,GSP filling in muttam,,BAVA HOUSE
+309,8/14/2025,"30,691",Polishing,Gireesh,Polishing material +labor,,BAVA HOUSE
+310,8/14/2025,"15,000",Flooring,Manu Mash,"13000 agianst contract, 2000 against epoxy material",,BAVA HOUSE
+311,8/14/2025,"150,000",Curtain,Azeez Appello,,,BAVA HOUSE
+312,8/15/2025,"18,050",garden,Sathyan,,,BAVA HOUSE
+313,8/15/2025,"14,000",Flooring,SHARAFUDHEEN,clading work + wall tile work+ epoxy reamining granite work,,BAVA HOUSE
+314,8/15/2025,"4,450",paint,Rafi,basic paint works,,BAVA HOUSE
+315,8/16/2025,"61,000",Lights,Silvan,,,BAVA HOUSE
+316,8/16/2025,"5,770",Flooring,Manu Mash,balance in expoxy material,,BAVA HOUSE
+317,8/16/2025,"50,000",Sealing work,Said alavi,Car Porch sealing,,BAVA HOUSE
+318,8/16/2025,"25,000",Boundary Wall,Shibili,Plastering,,BAVA HOUSE
+319,8/16/2025,"100,000",Interior work,Prashanth,Direct bank transfer,,BAVA HOUSE
+320,8/16/2025,"35,000",Polishing,Gireesh,,,bAVA HOUSE
+321,8/16/2025,"2,400",garden,sathyan,labor,,bAVA HOUSE
+322,8/17/2025,"5,000",Tress work,Muneer Zubair,,,HASHIR HOUSE
+323,8/17/2025,"3,500",Tress work,Muneer Zubair,,,BAVA HOUSE
+324,8/18/2025,"75,000",Flooring,Home Stone,,,BAVA HOUSE
+325,8/18/2025,"16,000",Sanitory itesm,Classic Tiles,,,BAVA HOUSE
+326,8/19/2025,"15,000",Glass Work,Homestar,Stair case glass,,BAVA HOUSE
+327,8/19/2025,"12,000",Flooring,SHARAFUDHEEN,,,BAVA HOUSE
+328,8/19/2025,"12,000",LANDSCAPING- INTERLOCK,Black diomend metals,,,BAVA HOUSE
+329,8/19/2025,"300,000",Electrical fittings,HILITE,,,BAVA HOUSE
+330,8/20/2025,"15,000",painting,Haris,Texture painting,,BAVA HOUSE
+331,8/20/2025,"50,000",plumping,Medan Salam,,,BAVA HOUSE
+332,8/20/2025,"2,000",Quarts work Labor,Haneefa,,,BAVA HOUSE
+333,8/21/2025,"23,670",Sanitory itesm,KPM Sanitsary,,,BAVA HOUSE
+334,8/21/2025,"23,000",Car porch Sealing work,Said alavi,,,BAVA HOUSE
+335,8/21/2025,"32,000",paint,Rafi,,,BAVA HOUSE
+336,8/23/2025,"13,100",paint,Haris,Texture painting,,BAVA HOUSE
+337,8/23/2025,"14,850",Ceptic Tank Cover,Muneer Zubair,,,BAVA HOUSE
+338,8/23/2025,"9,000",Flooring,SHARAFUDHEEN,,,BAVA HOUSE
+339,8/23/2025,"50,000",Boundary Wall,Shibili,,,BAVA HOUSE
+340,8/24/2025,"50,000",Interior work,Prashanth,Direct bank transfer,,BAVA HOUSE
+341,8/26/2025,"1,650",Generator,kolar,,,BAVA HOUSE
+342,8/26/2025,"15,000",Flooring,SHARAFUDHEEN,,,BAVA HOUSE
+343,8/26/2025,"9,500",Flooring,Manu Mash,,,BAVA HOUSE
+344,8/26/2025,"1,300",Flooring,Manu Mash,poiniting material charge,,BAVA HOUSE
+345,8/28/2025,"46,343",paint,ABC Paints,,,BAVA HOUSE
+346,8/28/2025,"15,300",paint,Rafi,,,BAVA HOUSE
+347,8/28/2025,"26,080",boundary Wall,Supreme Traders,,,BAVA HOUSE
+348,8/28/2025,"3,920",boundary Wall,Supreme Traders,,,HASHIR HOUSE
+349,8/28/2025,"26,950",LANDSCAPING- INTERLOCK,Shakthi,Baby mettal,,BAVA HOUSE
+350,8/29/2025,"160,000",Plumping fittings,HILITE,,,BAVA HOUSE
+351,8/29/2025,"40,200",BATHROOM DOORS,Dr DOOR,,,BAVA HOUSE
+352,8/29/2025,"50,000",Boundary Wall,Shibili,,,BAVA HOUSE
+353,8/29/2025,"225,000",UPVC,SAMORA,Direct bank transfer,,BAVA HOUSE
+354,8/29/2025,"125,000",Polishing,Gireesh,,,BAVA HOUSE
+355,8/29/2025,"100,000",Sanitory item,Home Stone,,,BAVA HOUSE
+356,8/30/2025,"50,000",Boundary Wall,Shibili,,,BAVA HOUSE
+357,9/2/2025,"24,600",plumping material,Baith Noor,,,BAVA HOUSE
+358,9/3/2025,"10,000",Shamiyana,Shaheer,,,BAVA HOUSE
+359,9/4/2025,"100,000",Supervision charge,Shibili,,,BAVA HOUSE
+360,9/4/2025,"13,000",Stair Case,Sabikh,,,BAVA HOUSE
+361,9/5/2025,"50,000",Interior work,Prashanth,,,BAVA HOUSE
+362,9/8/2025,"1,400",Flooring,SHARAFUDHEEN,,,BAVA HOUSE
+363,9/8/2025,"100,000",Glass Work,Homestar,"front door lock, bolt , mirrors and stair case glass",,BAVA HOUSE
+364,9/8/2025,"25,000",Flooring,AJ Associates,Gum ( Balance 7150),,BAVA HOUSE
+365,9/8/2025,"100,000",Catering,Sahad,,,BAVA HOUSE
+366,9/10/2025,"3,454",Sealing work,unni,paid by sanfi,,BAVA HOUSE
+367,9/11/2025,"25,000",plumping,Medan Salam,,,BAVA HOUSE
+368,9/11/2025,"169,245",Curtain,appello,,,BAVA HOUSE
+369,9/11/2025,"55,000",Catering,Sahad,,,BAVA HOUSE
+370,9/19/2025,"14,720",Glass Work,Homestar,,,BAVA HOUSE
+371,9/19/2025,"12,700",Polishing,Gireesh,,,BAVA HOUSE
+372,9/25/2025,"7,500",Roof Painting,Rafi,,,HASHIR HOUSE
+373,9/30/2025,"300,000",Interior work,Prashanth,Paid to Ashiq Homestar,,BAVA HOUSE
+374,9/30/2025,"210,000",AC,Keybees,,,BAVA HOUSE
+375,10/14/2025,"153,000",Roof Painting,Rafi,,,HASHIR HOUSE
+376,10/23/2025,"80,000",Interior work,Prashanth,,,BAVA HOUSE
+377,10/28/2025,800,Flooring,Classic Tiles,,,BAVA HOUSE
+378,10/28/2025,"2,900",cctv,Mujeeb,,,BAVA HOUSE
+379,2/20/2026,"40,000",Rain Gutter,Sayed,,,HASHIR HOUSE
+380,2/23/2026,"50,000",Sealing tiles,S.A roofings,paid from umma g pay ( Rs.75/ps),,HASHIR HOUSE
+381,2/23/2026,"50,000",Sealing tiles,S.A roofings,paid from umma g pay,,HASHIR HOUSE
+382,2/24/2026,"20,000",Sealing tiles,S.A roofings,paid from umma g pay,,HASHIR HOUSE
+383,2/24/2026,"60,000",Roof Tiles,Supreme Traders,paid from umma g pay,,HASHIR HOUSE
+384,2/28/2026,"2,309",KSEB Meter Shifting charge,Medan Salam,paid from umma g pay,,HASHIR HOUSE
+384,3/2/2026,350,Sealing tiles,S.A roofings,paid from umma g pay,,HASHIR HOUSE
+386,3/3/2026,"15,000",Tress work,Vk Metals,tress boarder work done from VK steel kootilangadi,,HASHIR HOUSE
+385,3/3/2026,"30,000",roof tiles Labor,Anees Babu,Paid from umma g pay,,HASHIR HOUSE
+386,3/4/2026,"10,000",Roof Tiles,Supreme Traders,Paid from Umma G pay,,HASHIR HOUSE
+389,3/4/2026,"4,614",Tress work,Vk Metals,tress boarder work done from VK steel kootilangadi- Material,,HASHIR HOUSE
+390,3/5/2026,"5,700",Tress work,Rashid,Labor,,HASHIR HOUSE
+391,3/5/2026,"10,000",Rain Gutter,Sayed,,,HASHIR HOUSE
+387,3/5/2026,"40,000",roof tiles,Supreme Traders,Paid from Umma G pay,,HASHIR HOUSE
+388,3/6/2026,"12,000",Roof Tiles,Supreme Traders,Paid from Umma G pay,,HASHIR HOUSE
+393,3/8/2026,"6,940",Tress work,Rashid,Labor,,HASHIR HOUSE
+394,3/13/2026,"30,000",plumping,Medan Salam,"sprinkler work, driange work ,",,BAVA HOUSE
+395,3/11/2026,"4,760",Tress work,Vk Metals,,,HASHIR HOUSE
+396,3/15/2026,"5,500",Tress work,Rashid,,,HASHIR HOUSE
+397,3/17/2026,"30,000",Roof Tiles,yousuf,,,HASHIR HOUSE
+398,3/17/2026,"37,520",Tress work,Vk Metals,,,HASHIR HOUSE
+399,3/30/2026,"4,500",Tress work,Muneer Zubair,,,HASHIR HOUSE
+400,4/7/2026,"17,900",Tress work,Muneer Zubair,,,HASHIR HOUSE
+401,4/8/2026,"40,000",Roof tiles,Supreme Traders,,,HASHIR HOUSE
+402,4/9/2026,"20,000",Roof tiles labor,Anees Babu,,,HASHIR HOUSE
+403,4/10/2026,"20,000",Roof Tiles,Anees Babu,,,HASHIR HOUSE
+404,5/6/2026,"30,000",Boundary Wall,Shibil,,,HASHIR HOUSE
+405,5/9/2026,"8,500",Boundary Wall,Shibili,,,HASHIR HOUSE
+406,5/10/2026,"10,000",well work,Subeesh,Tipper charge,,HASHIR HOUSE
+407,5/11/2026,"8,500",septic tank work,Shibili,,,HASHIR HOUSE
+408,5/14/2026,"1,500",putty work,Prasad,,,HASHIR HOUSE
+409,5/16/2026,"17,000",putty work,Prasad,,,HASHIR HOUSE
+410,5/16/2026,"14,000",Bollar for septic tank,Shibili,,,HASHIR HOUSE
+411,5/17/2026,"10,000",Bollar for septic tank,Shibili,,,HASHIR HOUSE
+412,5/17/2026,"10,200",well work labor,Shibili,,,HASHIR HOUSE
+413,5/23/2026,"21,000",putty work,prasad,,,HASHIR HOUSE
+414,5/27/2026,"4,500",roof tiles,Shibili,,,HASHIR HOUSE
+415,5/30/2026,"16,000",putty work,prasad,,,HASHIR HOUSE
+416,6/1/2026,"25,000",Ring for Kinar,Shibili,,,HASHIR HOUSE
+417,6/7/2026,"13,000",putty work,Prasad,,,HASHIR HOUSE
+418,6/11/2026,"7,450",boundary Wall belt concrete,Shibili,,,HASHIR HOUSE
+419,6/11/2026,"4,000",Ring for Kinar,shibili,,,HASHIR HOUSE
+420,6/14/2026,"17,000",putty work,Prasad,,,HASHIR HOUSE
+421,6/21/2026,"19,000",putty work,Prasad,,,HASHIR HOUSE
+422,6/25/2026,"3,500",LANDSCAPING,Subeesh,Tipper charge,,HASHIR HOUSE
+423,7/4/2026,"13,000",Ring for Kinar,shibili,,,HASHIR HOUSE
+424,7/4/2026,"16,000",putty work,Prasad,,,HASHIR HOUSE
+425,7/11/2026,"14,000",putty work,Prasad,,,HASHIR HOUSE
+426,7/14/2026,"50,000",paint material,ABC Paints,,,HASHIR HOUSE
+427,10/1/2026,"50,000",plumping material,HILITE,Flesh tank and divertors,,HASHIR HOUSE
+428,10/9/2026,"100,000",Flooring,Classic Tiles,,,HASHIR HOUSE
+429,10/9/2026,"20,000",Plumping,Medan Salam,,,HASHIR HOUSE
+430,10/23/2026,"313,000",Flooring,Classic Tiles,,,HASHIR HOUSE
+431,10/31/2026,"25,400",Electrical fittings,HILITE,,,HASHIR HOUSE
+432,10/31/2026,"10,920",CCTV,Mujeeb,,,HASHIR HOUSE
+433
+434</script>
+<script>
+"use strict";
+const SOURCES={
+  pub:"https://docs.google.com/spreadsheets/d/e/2PACX-1vSljyZg5blbmLqUpOhoS2jwkNsbfZngDVa1POiQzpxGHRNpq3f3BXZNNioi0Zl53dh0T5FAH2wDMd9A/pub?output=csv",
+  id:"119NH82jKCBn1hZytOUkYkNkpJEiBYAXFv46e1mUigRw"
+};
+const REFRESH_MIN=5, SNAPSHOT_DATE="26 Nov 2026";
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const inr=n=>"₹"+Math.round(n).toLocaleString("en-IN");
+const short=n=>{const a=Math.abs(n);return a>=1e7?"₹"+(n/1e7).toFixed(2)+" Cr":a>=1e5?"₹"+(n/1e5).toFixed(2)+" L":a>=1e3?"₹"+(n/1e3).toFixed(1)+" K":"₹"+Math.round(n)};
+const MON=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const day=d=>d?d.getUTCDate()+" "+MON[d.getUTCMonth()]+" "+d.getUTCFullYear():"No date";
+const DAY=864e5;
+const sum=a=>a.reduce((s,r)=>s+r.amt,0);
+const pct=(a,b)=>b?(a/b*100).toFixed(1)+"%":"0%";
+const plural=(n,w)=>n+" "+w+(n===1?"":"s");
+function group(rows,key){const m=new Map();rows.forEach(r=>{const k=typeof key==="function"?key(r):r[key];if(!m.has(k))m.set(k,[]);m.get(k).push(r)});return [...m].map(([k,v])=>({k,rows:v,total:sum(v)})).sort((a,b)=>b.total-a.total)}
+
+/* ---------- reading the sheet ---------- */
+function parseCSV(t){const out=[];let row=[],f="",q=false;for(let i=0;i<t.length;i++){const c=t[i];if(q){if(c==='"'){if(t[i+1]==='"'){f+='"';i++}else q=false}else f+=c}else if(c==='"')q=true;else if(c===","){row.push(f);f=""}else if(c==="\n"){row.push(f);out.push(row);row=[];f=""}else if(c!=="\r")f+=c}if(f||row.length){row.push(f);out.push(row)}return out}
+function mkDate(y,m,d){if(y<100)y+=2000;const x=new Date(Date.UTC(y,m,d));return x.getUTCMonth()===m&&x.getUTCDate()===d?x:null}
+function parseDate(s){s=String(s||"").trim();let m;
+  if(m=s.match(/^Date\((\d+),(\d+),(\d+)/))return mkDate(+m[1],+m[2],+m[3]);
+  if(m=s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/))return mkDate(+m[1],m[2]-1,+m[3]);
+  if(m=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/)){let a=+m[1],b=+m[2];if(a>12)[a,b]=[b,a];return mkDate(+m[3],a-1,b)}
+  if(m=s.match(/^(\d{1,2})[-.](\d{1,2})[-.](\d{4})$/))return mkDate(+m[3],m[2]-1,+m[1]);
+  if(m=s.match(/^(\d{1,2})[-\s\/.]([A-Za-z]{3,})[-\s\/.,]+(\d{2,4})$/)){const i=MON.findIndex(x=>x.toLowerCase()===m[2].slice(0,3).toLowerCase());return i<0?null:mkDate(+m[3],i,+m[1])}
+  return null}
+const WORK_RULES=[
+[/car\s*porch.*steps/,"Structure & masonry"],[/sealing\s*tile|roof\s*tile/,"Roof & ceiling tiles"],[/roof\s*paint/,"Painting & putty"],
+[/gypsum|sealing\s*work/,"Gypsum & ceiling work"],[/water\s*proof/,"Waterproofing"],[/septic|ceptic|well\s*work|kinar/,"Well & septic tank"],
+[/boundary/,"Boundary wall"],[/interlock|landscap|garden/,"Landscaping & interlock"],[/tr[ue]ss/,"Truss & grill work"],
+[/foundation/,"Foundation"],[/structure|masonry/,"Structure & masonry"],[/(land|site)\s*clear/,"Site clearing"],[/architect/,"Architect"],
+[/electric|medan salam|kseb|^lights?$/,"Electrical & lighting"],[/plum|sanit/,"Plumbing & sanitary"],[/plaster/,"Plastering"],
+[/putty|paint/,"Painting & putty"],[/floor|^tiles$|quart|clad/,"Flooring, tiles & cladding"],[/door|upvc|alumin|glass/,"Doors, windows & glass"],
+[/interior/,"Interior work"],[/stair/,"Staircase"],[/polish/,"Polishing"],[/curtain/,"Curtains"],[/^ac$/,"Air conditioning"],[/cctv/,"CCTV"],
+[/gutter/,"Rain gutter"],[/wood/,"Wood"],[/cater|shamiyana|generator/,"Function & catering"],[/supervision/,"Supervision charge"],[/clean|other/,"Permits, cleaning & other"]];
+const CON_RULES=[[/shibil/,"Shibili"],[/shabee?b/,"Shabeeb"],[/sub+h?ee?sh/,"Subeesh"],[/cherr/,"Cherri"],[/medan|\bsalam\b/,"Medan Salam"],[/hi\s*lite/,"HiLite"],[/muneer/,"Muneer Zubair"],[/\brafi\b/,"Rafi"],[/bakkah/,"Bakkah Leak Clinic"],[/black\s*di/,"Black Diamond Metals"],[/abc/,"ABC Paints"],[/home\s*stone/,"Home Stone"],[/mujee?b/,"Mujeeb"],[/aalam/,"Aalam"],[/appello/,"Azeez Appello"],[/kpm/,"KPM Sanitary"],[/samora/,"Samora"],[/aj assoc/,"AJ Associates"],[/s\.?a\.? roof/,"S.A. Roofings"],[/vk metal/,"VK Metals"],[/sharafu/,"Sharafudheen"]];
+const title=s=>s.toLowerCase().replace(/(^|\s)\S/g,c=>c.toUpperCase());
+function norm(raw,rules){const t=raw.toLowerCase().trim();if(!t)return "Not stated";const h=rules.find(r=>r[0].test(t));return h?h[1]:title(raw.trim())}
+function payMode(t){t=t.toLowerCase();if(/cheque/.test(t))return "Cheque";if(/atm/.test(t))return "Cash from ATM";if(/bank|nri|online transfer|direct transfer/.test(t))return "Bank transfer";if(/g\s?pa(y|id)|google pay|upi/.test(t))return "GPay / UPI";if(/cash transf+er/.test(t))return "Bank transfer";if(/cash/.test(t))return "Cash";if(/transf+er|account/.test(t))return "Bank transfer";return "Not stated"}
+function payer(t){t=t.toLowerCase();const R=[[/bava transf|by bava/,"Bava"],[/umma/,"Umma"],[/sanfi/,"Sanfi"],[/hashir/,"Hashir"],[/rinu/,"Rinu"],[/mahroof/,"Mahroof"],[/pul+a?y+a?pa?de/,"Aapa (Pullayapade)"],[/kaa?ka\b/,"Kaka (Nirappil)"],[/adaka/,"Adaka Valapp fund"],[/\bnri\b/,"NRI transfer (no name)"]];const h=R.find(r=>r[0].test(t));return h?h[1]:"Not stated"}
+function kind(work,note){const w=work.toLowerCase(),all=w+" "+note.toLowerCase(),mat=/mat[a-z]{0,3}r[a-z]{0,3}l|motor and pipe|purchase|cement|bricks/.test(all),lab=/labou?r/.test(all);return mat&&lab?"Material + labour":mat?"Material":lab?"Labour":"Not specified"}
+function build(table){
+  const h=table.findIndex(r=>r.some(c=>/^\s*date\s*$/i.test(c))&&r.some(c=>/am(oun)?t/i.test(c)));
+  if(h<0)throw new Error("Columns 'Date' and 'Amt Paid' were not found");
+  const head=table[h].map(c=>c.trim().toLowerCase()),col=re=>head.findIndex(c=>re.test(c));
+  const I={sn:col(/^s\s*\/?\s*n/),date:col(/^date$/),amt:col(/am(oun)?t/),work:col(/^work/),con:col(/contractor/),rem:col(/remark/),txn:col(/transaction/),proj:col(/project/)};
+  const rows=[],skipped=[];
+  table.slice(h+1).forEach((r,n)=>{const g=k=>I[k]<0?"":String(r[I[k]]??"").trim();
+    if(!r.some(c=>String(c).trim()))return;
+    const a=g("amt").replace(/[₹,\s]|rs\.?|\/-/gi,""),amt=Number(a),work=g("work"),con=g("con"),date=parseDate(g("date"));
+    if(!a||!isFinite(amt)||(!work&&!con&&!date)){if(g("amt")||g("work")||g("date"))skipped.push({sn:g("sn")||"row "+(h+n+2),text:[g("date"),g("amt"),work,con].join(" | ")});return}
+    const note=[g("rem"),g("txn")].join(" ");
+    rows.push({sn:g("sn")||String(n+1),date,rawDate:g("date"),amt,rawWork:work,rawCon:con,work:norm(work,WORK_RULES),con:norm(con,CON_RULES),rem:g("rem"),txn:g("txn"),proj:title(g("proj"))||"Not stated",mode:payMode(note),payer:payer(note),kind:kind(work,note+" "+con)});
+  });
+  if(!rows.length)throw new Error("No payment rows found");
+  return {rows,skipped}}
+
+/* ---------- state and loading ---------- */
+let DATA=[],SKIPPED=[],tab="overview",ledgerRows=[],liveAt=null,manual=false,busy=false;
+const F={project:"",year:"",work:"",con:"",text:""},sorts={};
+const snapshot=()=>build(parseCSV($("#snapshot").textContent.trim()));
+function apply(d){DATA=d.rows;SKIPPED=d.skipped;fillFilters();render()}
+function timeout(p,ms){return Promise.race([p,new Promise((_,j)=>setTimeout(()=>j(new Error("timed out")),ms))])}
+async function csv(url){const r=await timeout(fetch(url,{cache:"no-store"}),12000);if(!r.ok)throw new Error("HTTP "+r.status);const t=await timeout(r.text(),12000);if(/^\s*</.test(t))throw new Error("not CSV");return build(parseCSV(t))}
+function gviz(){return new Promise((res,rej)=>{const cb="__gv"+Date.now(),s=document.createElement("script");
+  const done=()=>{clearTimeout(tm);s.remove();window[cb]=()=>{}};const tm=setTimeout(()=>{done();rej(new Error("timed out"))},12000);
+  window[cb]=j=>{done();try{if(j.status==="error")throw new Error("sheet refused");const head=j.table.cols.map(c=>c.label||"");
+    const body=j.table.rows.map(r=>r.c.map(c=>c?String(c.f??c.v??""):""));res(build([head,...body]))}catch(e){rej(e)}};
+  s.onerror=()=>{done();rej(new Error("blocked"))};
+  s.src="https://docs.google.com/spreadsheets/d/"+SOURCES.id+"/gviz/tq?headers=1&tqx=out:json;responseHandler:"+cb+"&_="+Date.now();document.head.appendChild(s)})}
+function status(text,live){$("#statusText").textContent=text;$("#status").classList.toggle("live",live)}
+function banner(t){$("#banner").style.display=t?"block":"none";$("#bannerText").textContent=t||""}
+async function sync(){
+  if(busy)return;busy=true;manual=false;status("Syncing with Google Sheets…",false);
+  const tries=[()=>csv(SOURCES.pub+"&_="+Date.now()),()=>csv("https://docs.google.com/spreadsheets/d/"+SOURCES.id+"/export?format=csv"),gviz];
+  for(const t of tries){try{const d=await t();if(manual)break;apply(d);liveAt=new Date();status("Live: "+d.rows.length+" payments, synced "+liveAt.toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit"}),true);banner("");busy=false;return}catch(e){console.warn("Source failed:",e.message)}}
+  busy=false;if(manual)return;
+  if(liveAt){status("Offline: showing data from "+liveAt.toLocaleTimeString("en-IN"),false);banner("The latest refresh failed. The figures are from the last successful sync.")}
+  else{status("Saved copy: "+DATA.length+" payments",false);banner("Live sync did not connect, so this shows a saved copy taken on "+SNAPSHOT_DATE+" ("+DATA.length+" payments). Check your internet and that the sheet is still published, or use Load CSV file.")}
+}
+
+/* ---------- filters ---------- */
+const PCOL=p=>/bava/i.test(p)?"var(--bava)":/hashir/i.test(p)?"var(--hashir)":"var(--other)";
+const PAL=["#e8a33d","#5fb7c9","#d96c4a","#8fc27a","#c9a6e0","#f0d36a","#7da4e0","#e590a8","#58c0a0","#bfc9d1"];
+const uniq=k=>[...new Set(DATA.map(r=>r[k]))].sort();
+function opts(el,list,all,val){el.innerHTML=(all===null?"":`<option value="">${all}</option>`)+list.map(v=>`<option value="${esc(v)}">${esc(v)}</option>`).join("");el.value=list.includes(val)?val:(all===null?list[0]||"":"")}
+function fillFilters(){
+  const years=[...new Set(DATA.filter(r=>r.date).map(r=>String(r.date.getUTCFullYear())))].sort();
+  [["project","#fProject",uniq("proj"),"All houses"],["year","#fYear",years,"All years"],["work","#fWork",uniq("work"),"All works"],["con","#fCon",uniq("con"),"All contractors"]].forEach(([k,id,l,a])=>{opts($(id),l,a,F[k]);F[k]=$(id).value});
+}
+function filtered(){const q=F.text.toLowerCase();return DATA.filter(r=>(!F.project||r.proj===F.project)&&(!F.year||r.date&&String(r.date.getUTCFullYear())===F.year)&&(!F.work||r.work===F.work)&&(!F.con||r.con===F.con)&&(!q||[r.rawWork,r.work,r.rawCon,r.con,r.rem,r.txn,r.proj,r.payer,r.mode,r.amt].join(" ").toLowerCase().includes(q)))}
+function drill(k,v){F[k]=v;$(k==="work"?"#fWork":"#fCon").value=v;show("ledger");render();window.scrollTo({top:$(".bar").offsetTop,behavior:"smooth"})}
+
+/* ---------- building blocks ---------- */
+function table(id,cols,data,initial){
+  const el=$("#"+id);if(!data.length){el.innerHTML='<p class="empty">No payments match these filters.</p>';return}
+  const s=sorts[id]||(sorts[id]=initial||{i:-1,d:1});
+  if(s.i>=0){const c=cols[s.i];data=[...data].sort((a,b)=>{const x=c.v(a),y=c.v(b);return (typeof x==="number"?x-y:String(x).localeCompare(String(y),undefined,{numeric:true}))*s.d})}
+  el.innerHTML=`<table><thead><tr>${cols.map((c,i)=>`<th class="${c.n?"n":""}" tabindex="0" data-i="${i}">${esc(c.h)}${s.i===i?(s.d>0?" ▲":" ▼"):""}</th>`).join("")}</tr></thead><tbody>${data.map(r=>`<tr>${cols.map(c=>`<td class="${c.n?"n":""}">${c.html?c.html(r):esc(c.v(r))}</td>`).join("")}</tr>`).join("")}</tbody></table>`;
+  el.querySelectorAll("th").forEach(th=>{th.onclick=()=>{const i=+th.dataset.i;sorts[id]={i,d:s.i===i?-s.d:(cols[i].n?-1:1)};render()};th.onkeydown=e=>{if(e.key==="Enter")th.click()}});
+  return data}
+function key(id,projs){$(id).innerHTML=projs.map(p=>`<span><i style="background:${PCOL(p)}"></i>${esc(p)}</span>`).join("")}
+function bars(id,groups,projs,onKey){
+  const el=$("#"+id),max=Math.max(1,...groups.map(g=>g.total)),tot=groups.reduce((s,g)=>s+g.total,0);
+  el.innerHTML=groups.length?groups.map((g,i)=>`<div class="hrow" tabindex="0" data-i="${i}" title="${esc(g.k)}: ${inr(g.total)} (${pct(g.total,tot)})"><span class="lab">${esc(g.k)}</span><span class="track">${projs.map(p=>`<span style="width:${Math.max(0,sum(g.rows.filter(r=>r.proj===p)))/max*100}%;background:${PCOL(p)}"></span>`).join("")}</span><span class="v">${short(g.total)}</span></div>`).join(""):'<p class="empty">No payments match these filters.</p>';
+  if(onKey)el.querySelectorAll(".hrow").forEach(d=>{d.onclick=()=>drill(onKey,groups[d.dataset.i].k);d.onkeydown=e=>{if(e.key==="Enter")d.click()}})}
+function stats(rows){
+  const dated=rows.filter(r=>r.date).map(r=>r.date.getTime()).sort((a,b)=>a-b),days=[...new Set(dated)];
+  let gap=0;for(let i=1;i<days.length;i++)gap=Math.max(gap,(days[i]-days[i-1])/DAY);
+  const first=days.length?new Date(days[0]):null,last=days.length?new Date(days[days.length-1]):null;
+  return {total:sum(rows),n:rows.length,avg:rows.length?sum(rows)/rows.length:0,max:rows.length?Math.max(...rows.map(r=>r.amt)):0,first,last,span:first?Math.round((last-first)/DAY)+1:0,days:days.length,gap:Math.round(gap)}}
+const dur=d=>!d?"No date":d===1?"1 day":d<60?d+" days":d+" days (about "+(d/30.44).toFixed(1)+" months)";
+function compare(id,rows,k,a,b,otherKey,otherLabel){
+  const A=rows.filter(r=>r[k]===a),B=rows.filter(r=>r[k]===b),x=stats(A),y=stats(B);
+  const list=(r)=>[...new Set(r.map(z=>z[otherKey]))].join(", ")||"None";
+  const L=[["Total paid",inr(x.total),inr(y.total)],["Payments",x.n,y.n],["Average payment",inr(x.avg),inr(y.avg)],["Largest payment",inr(x.max),inr(y.max)],["First payment",day(x.first),day(y.first)],["Last payment",day(x.last),day(y.last)],["First to last",dur(x.span),dur(y.span)],["Longest gap",x.gap+" days",y.gap+" days"],[otherLabel,list(A),list(B)]];
+  $(id).innerHTML=`<div class="cmp"><div></div><div class="h">${esc(a)}</div><div class="h">${esc(b)}</div>${L.map(l=>`<div class="m">${l[0]}</div><div>${esc(l[1])}</div><div>${esc(l[2])}</div>`).join("")}</div>`}
+
+/* ---------- insights and checks ---------- */
+function insights(rows){
+  const out=[],T=sum(rows);if(!rows.length)return out;const add=(h,t,w)=>out.push({h,t,w});
+  const W=group(rows,"work"),C=group(rows,"con"),P=group(rows,"proj");
+  if(W.length>1){const top=W.slice(0,3);add("Where most money went",`${top.map(g=>g.k+" "+short(g.total)).join(", ")}. Together ${pct(top.reduce((s,g)=>s+g.total,0),T)} of the amount shown.`)}
+  if(C.length>1)add("Largest payee: "+C[0].k,`${inr(C[0].total)} in ${plural(C[0].rows.length,"payment")}, ${pct(C[0].total,T)} of spending, across ${[...new Set(C[0].rows.map(r=>r.work))].join(", ")}.${C[0].total/T>.35?" With this much going to one person, keep a written running account and settle it stage by stage.":""}`,C[0].total/T>.35);
+  const big=[...rows].sort((a,b)=>b.amt-a.amt)[0];add("Largest single payment",`${inr(big.amt)} to ${big.con} for ${big.work} on ${day(big.date)}.`);
+  const M=group(rows.filter(r=>r.date),r=>MON[r.date.getUTCMonth()]+" "+r.date.getUTCFullYear());if(M.length>1)add("Highest spending month: "+M[0].k,`${inr(M[0].total)}. The average month with payments was ${inr(sum(rows.filter(r=>r.date))/M.length)}.`);
+  if(!F.project&&P.length>1)add("Between the houses",P.map(p=>`${p.k}: ${short(p.total)} (${pct(p.total,T)}), first payment ${day(stats(p.rows).first)}`).join(". ")+". The houses may be at different stages, so totals alone do not show which costs more.");
+  const adv=rows.filter(r=>/advance/i.test(r.rem+" "+r.txn));if(adv.length)add("Advances to reconcile",`${plural(adv.length,"payment")} totalling ${inr(sum(adv))} mention an advance (${[...new Set(adv.map(r=>r.con))].join(", ")}). Match each against the final bill before paying the balance.`,true);
+  const cash=rows.filter(r=>/^Cash/.test(r.mode));if(cash.length)add("Cash payments",`${inr(sum(cash))} (${pct(sum(cash),T)}) was noted as cash. Get a signed receipt for each.`,sum(cash)/T>.2);
+  const ns=rows.filter(r=>r.mode==="Not stated");if(ns.length)add("Payment method missing",`${plural(ns.length,"payment")} worth ${inr(sum(ns))} (${pct(sum(ns),T)}) do not say how the money was paid.`,ns.length/rows.length>.2);
+  const long=W.map(g=>({k:g.k,...stats(g.rows)})).sort((a,b)=>b.span-a.span)[0];if(long&&long.span>1)add("Longest running work: "+long.k,`${dur(long.span)} from first to last payment, with a longest pause of ${long.gap} days.${!F.project&&P.length>1?" This combines both houses; filter by house for one site.":""}`);
+  const s=stats(rows);if(s.last){const q=Math.floor((Date.now()-s.last)/DAY);if(q>60&&!F.year)add("No recent entry",`The latest payment shown is ${day(s.last)}, ${q} days ago. If work has continued, the sheet or this copy may be missing entries.`,true)}
+  if(s.last&&!F.year){const from=+s.last-365*DAY,rec=rows.filter(r=>r.date&&r.date>from),prev=rows.filter(r=>r.date&&r.date<=from&&r.date>from-365*DAY);
+    if(rec.length&&prev.length)add("Pace of spending",`${short(sum(rec))} in the 12 months to ${day(s.last)}, against ${short(sum(prev))} in the 12 months before. Latest main work: ${group(rec,"work")[0].k}.`)}
+  if(!F.project&&P.length>1){const two=P.filter(p=>p.k!=="Not stated").slice(0,2);if(two.length===2){const gap=W.map(g=>({k:g.k,a:sum(g.rows.filter(r=>r.proj===two[0].k)),b:sum(g.rows.filter(r=>r.proj===two[1].k))}));
+    const none=gap.filter(g=>g.a>0&&!g.b).sort((x,y)=>y.a-x.a).slice(0,5);if(none.length)add("Not yet recorded for "+two[1].k,`${none.map(g=>g.k+" ("+short(g.a)+" in "+two[0].k+")").join(", ")}. If these are still to come, use them as a rough budget guide, adjusted for house size.`)}}
+  const big5=[...rows].sort((a,b)=>b.amt-a.amt).slice(0,Math.ceil(rows.length*.1));if(rows.length>20)add("A few payments drive the total",`The largest 10% of payments (${big5.length}) make up ${pct(sum(big5),T)} of spending. Check these bills first.`);
+  const nm=rows.filter(r=>r.kind==="Not specified");if(nm.length/rows.length>.4)add("Add a few columns to the sheet",`${pct(sum(nm),T)} of spending is not marked as material or labour, and no work has start or finish dates. Adding "Type", "Work start", "Work end" and "Agreed amount" columns would allow exact duration and balance-due tracking.`,true);
+  return out}
+function issues(){
+  const out=[],add=(r,t)=>out.push({sn:r.sn,date:r.date?day(r.date):r.rawDate||"",amt:r.amt,proj:r.proj,why:t});
+  const latest={};
+  DATA.forEach(r=>{
+    if(!r.date)add(r,"Date is missing or unreadable ("+(r.rawDate||"blank")+").");
+    else{if(latest[r.proj]&&(latest[r.proj]-r.date)/DAY>14)add(r,"Date is much earlier than rows above it ("+day(new Date(latest[r.proj]))+" already appears). Check the month and year.");else latest[r.proj]=Math.max(latest[r.proj]||0,r.date);
+      if(r.date>Date.now())add(r,"Date is in the future.")}
+    if(r.rawDate&&!/^(\d{1,2}\/\d{1,2}\/\d{2,4}|Date\(.*|\d{4}-.*)$/.test(r.rawDate))add(r,"Date is typed in a different format ("+r.rawDate+"). The sheet may not sort or total it correctly.");
+    if(r.rawWork&&r.rawWork.toLowerCase()===r.rawCon.toLowerCase())add(r,"Work column repeats the contractor name ("+r.rawWork+").");
+    if(r.proj==="Not stated")add(r,"Project name is blank, so this payment is not counted under either house.");
+    if(r.amt<=0)add(r,"Amount is zero or negative.");
+    for(const m of (r.rem+" "+r.txn).matchAll(/(?:₹|ലേബർ|Rs\.?)\s?([\d,]{4,})/g)){const v=+m[1].replace(/,/g,"");const ten=DATA.find(o=>o.proj===r.proj&&+o.date===+r.date&&o.amt===v*10);if(ten){add(ten,"Possible extra zero: S/N "+r.sn+" notes "+inr(v)+", but S/N "+ten.sn+" ("+ten.con+") on the same date is "+inr(ten.amt)+". The difference is "+inr(ten.amt-v)+". Check the bill.");continue}if(v>=1000&&!DATA.some(o=>o.proj===r.proj&&+o.date===+r.date&&o.amt===v))add(r,"Note mentions "+inr(v)+", but no payment of exactly that amount is entered for this date (this row is "+inr(r.amt)+"). Check against the bill.")}
+  });
+  group(DATA.filter(r=>r.date),r=>+r.date+"|"+r.amt+"|"+r.con).filter(g=>g.rows.length>1).forEach(g=>add(g.rows[0],"Possible double entry: S/N "+g.rows.map(r=>r.sn+" ("+r.proj+")").join(" and ")+" have the same date, amount and contractor."));
+  const seen={};DATA.forEach(r=>{if(seen[r.sn])add(r,"Serial number "+r.sn+" is used more than once.");seen[r.sn]=1});
+  out.sort((a,b)=>b.amt-a.amt);
+  SKIPPED.forEach(s=>out.push({sn:s.sn,date:"",amt:0,proj:"",why:"Row not counted because it has no usable amount or details: "+s.text}));
+  return out}
+
+/* ---------- charts ---------- */
+function monthly(rows,projs){
+  const d=rows.filter(r=>r.date);if(!d.length){$("#monthly").innerHTML='<p class="empty">No dated payments match these filters.</p>';return}
+  const mi=r=>r.date.getUTCFullYear()*12+r.date.getUTCMonth(),lo=Math.min(...d.map(mi)),hi=Math.max(...d.map(mi)),n=hi-lo+1;
+  const m=Array.from({length:n},()=>({}));d.forEach(r=>{const x=m[mi(r)-lo];x[r.proj]=(x[r.proj]||0)+r.amt});
+  const tot=m.map(x=>Object.values(x).reduce((a,b)=>a+b,0)),max=Math.max(1,...tot),all=sum(d)||1;
+  const W=Math.max($("#monthly").clientWidth||900,n*17+120),H=300,L=62,R=62,B=34,T=12,step=(W-L-R)/n,y=v=>T+(H-T-B)*(1-v);
+  let s=`<svg width="${W}" height="${H}" role="img" aria-label="Monthly spending and running total">`;
+  [0,.25,.5,.75,1].forEach(g=>s+=`<line x1="${L}" x2="${W-R}" y1="${y(g)}" y2="${y(g)}" stroke="#dfe5ea"/><text x="${L-6}" y="${y(g)+4}" text-anchor="end" fill="#5d6d7a">${short(max*g)}</text><text x="${W-R+6}" y="${y(g)+4}" fill="#14385c">${short(all*g)}</text>`);
+  let run=0,pts=[];const every=Math.ceil(46/step);
+  m.forEach((x,i)=>{const idx=lo+i,label=MON[idx%12]+" "+String(Math.floor(idx/12)).slice(2),cx=L+i*step;let base=0;run+=tot[i];
+    projs.forEach(p=>{const v=Math.max(0,x[p]||0);if(!v)return;s+=`<rect x="${cx+step*.15}" width="${Math.min(34,step*.7)}" y="${y((base+v)/max)}" height="${(H-T-B)*v/max}" fill="${PCOL(p)}"/>`;base+=v});
+    pts.push([cx+step/2,y(run/all)]);
+    if(i%every===0)s+=`<text x="${cx+step/2}" y="${H-12}" text-anchor="middle" fill="#5d6d7a">${label}</text>`;
+    s+=`<rect x="${cx}" y="${T}" width="${step}" height="${H-T-B}" fill="transparent"><title>${label}: ${inr(tot[i])}\nRunning total: ${inr(run)}</title></rect>`});
+  s+=`<polyline points="${pts.join(" ")}" fill="none" stroke="#14385c" stroke-width="2" pointer-events="none"/></svg>`;$("#monthly").innerHTML=s}
+function gantt(rows,projs){
+  const items=group(rows.filter(r=>r.date),r=>r.work+"|"+r.proj).map(g=>{const [w,p]=g.k.split("|");return {w,p,rows:g.rows,...stats(g.rows)}}).sort((a,b)=>a.first-b.first);
+  if(!items.length){$("#gantt").innerHTML='<p class="empty">No dated payments match these filters.</p>';return items}
+  const lo=Math.min(...items.map(i=>+i.first)),hi=Math.max(...items.map(i=>+i.last),lo+30*DAY);
+  const W=Math.max($("#gantt").clientWidth||1000,820),L=215,R=90,rh=30,H=items.length*rh+34,x=t=>L+(t-lo)/(hi-lo)*(W-L-R),amax=Math.max(1,...rows.map(r=>r.amt));
+  let s=`<svg width="${W}" height="${H}" role="img" aria-label="Timeline of payments for each work">`;
+  const a=new Date(lo),months=(new Date(hi).getUTCFullYear()-a.getUTCFullYear())*12+new Date(hi).getUTCMonth()-a.getUTCMonth(),st=Math.max(1,Math.ceil(months/9));
+  for(let i=1;i<=months;i+=st){const t=Date.UTC(a.getUTCFullYear(),a.getUTCMonth()+i,1),d=new Date(t);s+=`<line x1="${x(t)}" x2="${x(t)}" y1="20" y2="${H}" stroke="#e3e8ec"/><text x="${x(t)}" y="13" text-anchor="middle" fill="#5d6d7a">${MON[d.getUTCMonth()]} ${d.getUTCFullYear()}</text>`}
+  items.forEach((it,i)=>{const y=34+i*rh+6,c=PCOL(it.p),nm=it.w.length>30?it.w.slice(0,29)+"…":it.w;
+    s+=`<text x="0" y="${y+4}" font-size="12" fill="#1c2a36"><title>${esc(it.w)} (${esc(it.p)})</title>${esc(nm)}</text><line x1="${x(+it.first)}" x2="${x(+it.last)}" y1="${y}" y2="${y}" stroke="${c}" stroke-width="5" stroke-linecap="round" opacity=".35"/>`;
+    it.rows.forEach(r=>s+=`<circle cx="${x(+r.date)}" cy="${y}" r="${3+7*Math.sqrt(Math.max(0,r.amt)/amax)}" fill="${c}" opacity=".85" stroke="#fff"><title>${esc(it.w)}, ${esc(it.p)}\n${day(r.date)}: ${inr(r.amt)} to ${esc(r.con)}</title></circle>`);
+    s+=`<text x="${W-4}" y="${y+4}" text-anchor="end" fill="#5d6d7a">${it.span} ${it.span===1?"day":"days"}</text>`});
+  $("#gantt").innerHTML=s+"</svg>";return items}
+
+/* ---------- render ---------- */
+function render(){
+  const rows=filtered(),T=sum(rows),S=stats(rows),projs=uniq("proj"),W=group(rows,"work"),C=group(rows,"con");
+  $("#range").textContent=S.first?`Payments from ${day(S.first)} to ${day(S.last)}`:"No payments match these filters";
+  $("#hero").innerHTML=`<div><small>Total paid</small><div class="big">${inr(T)}</div><small>${short(T)} in ${plural(rows.length,"payment")}</small></div>`+group(rows,"proj").map(p=>`<div class="proj" style="border-color:${/bava/i.test(p.k)?"#6fb6e8":/hashir/i.test(p.k)?"#ee8b66":"#6fd0b8"}"><small>${esc(p.k)}</small><b>${inr(p.total)}</b><small>${pct(p.total,T)}, ${plural(p.rows.length,"payment")}</small></div>`).join("");
+  const head=W.slice(0,9),rest=W.slice(9);if(rest.length)head.push({k:"All other works",total:rest.reduce((s,g)=>s+g.total,0),other:true});
+  $("#strip").innerHTML=head.map((g,i)=>`<span style="width:${pct(Math.max(0,g.total),T)};background:${PAL[i]}" title="${esc(g.k)}: ${inr(g.total)} (${pct(g.total,T)})" data-i="${i}"></span>`).join("");
+  $("#strip").querySelectorAll("span").forEach(e=>e.onclick=()=>{const g=head[e.dataset.i];if(!g.other)drill("work",g.k)});
+  $("#stripKey").innerHTML=head.map((g,i)=>`<span><i style="background:${PAL[i]}"></i>${esc(g.k)} ${pct(g.total,T)}</span>`).join("");
+  $("#kpis").innerHTML=[[short(S.avg),"Average payment"],[short(S.max),"Largest payment"],[W.length,"Types of work"],[C.length,"Contractors and suppliers"],[S.span?S.span.toLocaleString("en-IN")+" days":"0","First to last payment"],[S.last?day(S.last):"None","Latest payment"]].map(k=>`<div><b>${k[0]}</b><span>${k[1]}</span></div>`).join("");
+  $("#insights").innerHTML=insights(rows).map(i=>`<div class="ins ${i.w?"w":""}"><b>${esc(i.h)}</b>${esc(i.t)}</div>`).join("")||'<p class="empty">No payments match these filters.</p>';
+  ["#mKey","#wKey","#cKey","#gKey"].forEach(i=>key(i,projs));
+  if(tab==="overview"||tab==="all")monthly(rows,projs);
+
+  const yr=group(rows.filter(r=>r.date),r=>String(r.date.getUTCFullYear()));
+  table("years",[{h:"Year",v:g=>g.k},{h:"Paid",n:1,v:g=>g.total,html:g=>inr(g.total)},{h:"Payments",n:1,v:g=>g.rows.length},{h:"Share",n:1,v:g=>g.total,html:g=>pct(g.total,T)},{h:"Main work",v:g=>group(g.rows,"work")[0].k}],yr,{i:0,d:1});
+  table("houses",[{h:"Work",v:g=>g.k},...projs.map(p=>({h:p,n:1,v:g=>sum(g.rows.filter(r=>r.proj===p)),html:g=>{const x=g.rows.filter(r=>r.proj===p);return x.length?inr(sum(x)):"–"}})),{h:"Total",n:1,v:g=>g.total,html:g=>inr(g.total)}],W);
+  bars("modes",group(rows,"mode"),projs);bars("payers",group(rows,"payer"),projs);bars("matlab",group(rows,"kind"),projs);
+  bars("workBars",W,projs,"work");bars("conBars",C,projs,"con");
+
+  const detail=(g)=>({...g,...stats(g.rows)});
+  const money=(h,f)=>({h,n:1,v:f,html:g=>inr(f(g))});
+  const common=[money("Total paid",g=>g.total),{h:"Share",n:1,v:g=>g.total,html:g=>pct(g.total,T)},{h:"Payments",n:1,v:g=>g.n},money("Average",g=>g.avg),money("Largest",g=>g.max)];
+  const link=(k,h)=>({h,v:g=>g.k,html:g=>`<a class="link" tabindex="0" data-k="${k}" data-v="${esc(g.k)}">${esc(g.k)}</a>`});
+  const dates=[{h:"First paid",n:1,v:g=>+g.first,html:g=>day(g.first)},{h:"Last paid",n:1,v:g=>+g.last,html:g=>day(g.last)},{h:"Days",n:1,v:g=>g.span}];
+  table("workTable",[link("work","Work"),...common,{h:"Paid to",v:g=>[...new Set(g.rows.map(r=>r.con))].join(", ")},...dates],W.map(detail),{i:1,d:-1});
+  table("conTable",[link("con","Contractor"),...common,{h:"Work done",v:g=>[...new Set(g.rows.map(r=>r.work))].join(", ")},{h:"House",v:g=>[...new Set(g.rows.map(r=>r.proj))].join(", ")},...dates],C.map(detail),{i:1,d:-1});
+  [["#wA","#wB",W,"#wCmp","work","con","Paid to"],["#cA","#cB",C,"#cCmp","con","work","Work done"]].forEach(([a,b,G,out,k,o,ol])=>{
+    const list=G.map(g=>g.k),A=$(a),B=$(b),va=A.value,vb=B.value;opts(A,list,null,va);opts(B,list,null,list.includes(vb)?vb:list[1]);
+    if(list.length)compare(out,rows,k,A.value,B.value,o,ol);else $(out).innerHTML='<p class="empty">Nothing to compare.</p>'});
+  const wk=W.map(g=>g.k);
+  table("matrix",[{h:"Contractor",v:g=>g.k},...wk.map(w=>({h:w,n:1,v:g=>sum(g.rows.filter(r=>r.work===w)),html:g=>{const v=sum(g.rows.filter(r=>r.work===w));return v?`<span style="display:block;background:rgba(31,95,143,${.07+.28*v/(g.total||1)});padding:1px 5px">${short(v)}</span>`:""}})),money("Total",g=>g.total)],C);
+
+  let items=[];if(tab==="time"||tab==="all")items=gantt(rows,projs);else items=group(rows.filter(r=>r.date),r=>r.work+"|"+r.proj).map(g=>{const [w,p]=g.k.split("|");return {w,p,rows:g.rows,...stats(g.rows)}});
+  table("timeTable",[{h:"Work",v:g=>g.w},{h:"House",v:g=>g.p},...dates.slice(0,2),{h:"First to last",n:1,v:g=>g.span,html:g=>dur(g.span)},{h:"Days with a payment",n:1,v:g=>g.days},{h:"Months with a payment",n:1,v:g=>new Set(g.rows.map(r=>day(r.date).replace(/^\d+ /,""))).size},{h:"Longest gap (days)",n:1,v:g=>g.gap},money("Paid",g=>g.total),money("Paid per month",g=>g.total/Math.max(1,g.span/30.44))],items,{i:4,d:-1});
+
+  ledgerRows=table("ledgerTable",[{h:"S/N",n:1,v:r=>+r.sn||0,html:r=>esc(r.sn)},{h:"Date",n:1,v:r=>r.date?+r.date:0,html:r=>day(r.date)},money("Amount",r=>r.amt),{h:"Work",v:r=>r.work,html:r=>esc(r.work)+(r.rawWork&&r.rawWork!==r.work?`<br><small style="color:var(--mute)">${esc(r.rawWork)}</small>`:"")},{h:"Contractor",v:r=>r.con},{h:"House",v:r=>r.proj,html:r=>`<span class="tag" style="background:${PCOL(r.proj)}">${esc(r.proj)}</span>`},{h:"Remarks",v:r=>r.rem},{h:"Transaction details",v:r=>r.txn},{h:"Method",v:r=>r.mode}],rows,{i:1,d:-1})||[];
+  $("#ledgerSum").textContent=`${plural(rows.length,"payment")}, ${inr(T)}`;
+
+  const iss=issues();
+  table("issues",[{h:"S/N",n:1,v:r=>+r.sn||0,html:r=>esc(r.sn)},{h:"Date",v:r=>r.date},{h:"Amount",n:1,v:r=>r.amt,html:r=>r.amt?inr(r.amt):""},{h:"House",v:r=>r.proj},{h:"What to check",v:r=>r.why}],iss);
+  if(!iss.length)$("#issues").innerHTML='<p class="empty">No problems found.</p>';
+  const maps=group(DATA,r=>JSON.stringify(["Work",r.rawWork,r.work])).concat(group(DATA,r=>JSON.stringify(["Contractor",r.rawCon,r.con]))).map(g=>{const [t,a,b]=JSON.parse(g.k);return {t,a,b,n:g.rows.length}}).filter(m=>m.a!==m.b);
+  table("mapping",[{h:"Column",v:m=>m.t},{h:"Written in sheet",v:m=>m.a},{h:"Shown as",v:m=>m.b},{h:"Rows",n:1,v:m=>m.n}],maps,{i:2,d:1});
+  $("#tabs [data-t=check]").textContent=`Data check (${iss.length})`;
+  $("#foot").textContent=`Amounts are payments recorded in the sheet, not contract values or pending dues. While open, the dashboard re-reads the sheet every ${REFRESH_MIN} minutes. Published Google Sheets can take a few minutes to show new edits.`;
+}
+function show(t){tab=t;document.querySelectorAll("section").forEach(s=>s.classList.toggle("on",s.id===t));document.querySelectorAll("#tabs button").forEach(b=>b.setAttribute("aria-selected",b.dataset.t===t))}
+$("#tabs").innerHTML=[["overview","Overview"],["works","Work comparison"],["contractors","Contractors"],["time","Time taken"],["ledger","All payments"],["check","Data check"]].map(t=>`<button role="tab" data-t="${t[0]}">${t[1]}</button>`).join("");
+$("#tabs").onclick=e=>{const b=e.target.closest("button");if(b){show(b.dataset.t);render()}};
+[["#fProject","project"],["#fYear","year"],["#fWork","work"],["#fCon","con"]].forEach(([i,k])=>$(i).onchange=e=>{F[k]=e.target.value;render()});
+$("#fText").oninput=e=>{F.text=e.target.value.trim();render()};
+$("#clear").onclick=()=>{Object.keys(F).forEach(k=>F[k]="");$("#fText").value="";fillFilters();render()};
+["#wA","#wB","#cA","#cB"].forEach(i=>$(i).onchange=render);
+document.addEventListener("click",e=>{const a=e.target.closest("a.link");if(a)drill(a.dataset.k,a.dataset.v)});
+document.addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target.matches("a.link"))e.target.click()});
+$("#refresh").onclick=sync;
+$("#file").onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const d=build(parseCSV(await f.text()));manual=true;apply(d);status("File: "+d.rows.length+" payments",false);banner("Showing "+f.name+". Live refresh is paused until you select Refresh now.")}catch(err){banner("That file could not be read. "+err.message+".")}e.target.value=""};
+$("#export").onclick=()=>{const q=v=>{let s=String(v??"");if(/^[=+\-@]/.test(s)&&isNaN(s))s="'"+s;return '"'+s.replace(/"/g,'""')+'"'};
+  const lines=[["S/N","Date","Amt Paid","Work","Contractor","Remarks","Transaction details","PROJECT NAME"],...ledgerRows.map(r=>[r.sn,r.date?r.date.toISOString().slice(0,10):r.rawDate,r.amt,r.rawWork,r.rawCon,r.rem,r.txn,r.proj])];
+  const a=document.createElement("a");a.href=URL.createObjectURL(new Blob(["\ufeff"+lines.map(l=>l.map(q).join(",")).join("\n")],{type:"text/csv"}));a.download="house-expenses.csv";a.click()};
+window.addEventListener("beforeprint",()=>{const t=tab;tab="all";document.querySelectorAll("section").forEach(s=>s.classList.add("on"));render();window.addEventListener("afterprint",()=>{show(t);render()},{once:true})});
+let rz;window.addEventListener("resize",()=>{clearTimeout(rz);rz=setTimeout(render,200)});
+show("overview");apply(snapshot());sync();
+setInterval(()=>{if(!manual)sync()},REFRESH_MIN*60000);
+</script>
+</body>
+</html>
